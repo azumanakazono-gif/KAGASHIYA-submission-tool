@@ -657,12 +657,15 @@
     if (isXlsx) {
       // ── Excel: SheetJS でセル単位に解析 ──────────
       reader.onload = e => {
-        try {
-          const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-          analyzeExcel(wb, file.name);
-        } catch {
-          showToast('Excelの解析に失敗しました。手動で入力してください。', '#e67e22');
-        }
+        // setTimeout で SheetJS のパース処理を非同期化し UI フリーズを防ぐ
+        setTimeout(() => {
+          try {
+            const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+            analyzeExcel(wb, file.name);
+          } catch {
+            showToast('Excelの解析に失敗しました。手動で入力してください。', '#e67e22');
+          }
+        }, 0);
       };
       reader.readAsArrayBuffer(file);
 
@@ -747,12 +750,18 @@
       ).sort((a, b) => (a.r - b.r) || (a.c - b.c));
 
       for (const nb of neighbors) {
+        // Date オブジェクト（Excel日付セル）は金額として扱わない
+        if (nb.val instanceof Date) continue;
+
         const raw = typeof nb.val === 'number'
           ? nb.val
           : parseInt(String(nb.val).replace(/[^\d]/g, ''), 10);
-        if (isNaN(raw) || raw < 1000) continue; // 1,000円未満は無視
-        if (isNet  && !extractedData.netPrice)      { extractedData.netPrice      = String(Math.round(raw)); break; }
-        if (isCust && !extractedData.customerPrice) { extractedData.customerPrice = String(Math.round(raw)); break; }
+
+        // 1,000円未満・1億円超・小数は無視（9999999999 等の sentinel 値を排除）
+        if (isNaN(raw) || raw < 1000 || raw > 99_999_999 || !Number.isInteger(raw)) continue;
+
+        if (isNet  && !extractedData.netPrice)      { extractedData.netPrice      = String(raw); break; }
+        if (isCust && !extractedData.customerPrice) { extractedData.customerPrice = String(raw); break; }
       }
     }
 
