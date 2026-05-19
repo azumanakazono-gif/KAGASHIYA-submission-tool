@@ -39,7 +39,7 @@
       display: grid;
       grid-template-columns: 380px 1fr;
       gap: 24px;
-      padding: 24px 32px;
+      padding: 24px 32px 0;
       max-width: 1280px;
       margin: 0 auto;
     }
@@ -58,6 +58,9 @@
       font-size: 0.85rem;
       font-weight: 700;
       letter-spacing: 0.06em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .panel-body { padding: 20px; }
 
@@ -81,11 +84,7 @@
       gap: 4px;
       margin-bottom: 12px;
     }
-    .form-row label {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #444;
-    }
+    .form-row label { font-size: 0.78rem; font-weight: 600; color: #444; }
     .form-row input,
     .form-row textarea {
       border: 1px solid #d5dde3;
@@ -107,10 +106,7 @@
     .form-row .hint { font-size: 0.72rem; color: #95a5a6; }
 
     /* 金額入力ラップ */
-    .amount-wrap {
-      display: flex;
-      align-items: center;
-    }
+    .amount-wrap { display: flex; align-items: center; }
     .amount-wrap .unit {
       background: #ecf0f1;
       border: 1px solid #d5dde3;
@@ -121,18 +117,10 @@
       border-left: none;
       border-radius: 0 6px 6px 0;
     }
-    .amount-wrap input {
-      border-radius: 6px 0 0 6px;
-      flex: 1;
-    }
+    .amount-wrap input { border-radius: 6px 0 0 6px; flex: 1; }
 
     /* ── 宛先チェックボックス ── */
-    .recipient-group {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 4px;
-    }
+    .recipient-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
     .recipient-group label {
       display: flex;
       align-items: center;
@@ -148,7 +136,6 @@
     }
     .recipient-group label:hover { border-color: #2c5f8a; background: #eaf3fb; }
     .recipient-group input[type="checkbox"] { display: none; }
-    .recipient-group input[type="checkbox"]:checked + span { color: #fff; }
     .recipient-group label:has(input:checked) {
       background: #2c5f8a;
       border-color: #2c5f8a;
@@ -176,14 +163,39 @@
       border-radius: 8px;
       padding: 14px 16px;
       font-size: 0.82rem;
-      line-height: 1.9;
+      line-height: 2;
       color: #444;
     }
     .sender-box strong { display: block; font-size: 0.85rem; color: #1a3a5c; margin-bottom: 2px; }
+    .sender-inline {
+      border: none;
+      border-bottom: 1px dashed #aaa;
+      outline: none;
+      background: transparent;
+      font-size: 0.82rem;
+      padding: 1px 4px;
+      color: #2c3e50;
+    }
+    #sender-tel  { width: 140px; }
+    #sender-email { width: 190px; }
 
-    /* ── 生成ボタン ── */
+    /* ── ボタン行 ── */
+    .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+    #btn-save {
+      flex: 0 0 auto;
+      padding: 13px 16px;
+      background: #27ae60;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #btn-save:hover { background: #1e8449; }
     #btn-generate {
-      width: 100%;
+      flex: 1;
       padding: 13px;
       background: #e67e22;
       color: #fff;
@@ -192,7 +204,6 @@
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
-      margin-top: 10px;
       letter-spacing: 0.04em;
       transition: background 0.2s, transform 0.1s;
     }
@@ -211,7 +222,6 @@
     }
     .preview-toolbar .label { font-size: 0.8rem; color: #7f8c8d; }
     .preview-toolbar .actions { display: flex; gap: 8px; }
-
     .btn-icon {
       display: inline-flex;
       align-items: center;
@@ -248,6 +258,163 @@
       font-size: 0.85rem;
     }
 
+    /* ════════════════════════════════════════
+       プランC：ドロップゾーン
+    ════════════════════════════════════════ */
+    #drop-zone {
+      border: 2px dashed #a0b8cf;
+      border-radius: 8px;
+      padding: 18px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      margin-bottom: 18px;
+    }
+    #drop-zone:hover,
+    #drop-zone.dragover { background: #eaf3fb; border-color: #2c5f8a; }
+    #drop-zone .dz-icon { font-size: 1.6rem; }
+    #drop-zone p { font-size: 0.8rem; color: #7f8c8d; margin-top: 4px; line-height: 1.5; }
+    #drop-zone strong { color: #2c5f8a; }
+    #file-input { display: none; }
+
+    /* 解析結果バナー */
+    #extract-banner {
+      display: none;
+      background: #eafaf1;
+      border: 1px solid #a9dfbf;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      font-size: 0.8rem;
+      line-height: 1.8;
+    }
+    #extract-banner .banner-title {
+      font-weight: 700;
+      color: #1e8449;
+      margin-bottom: 4px;
+    }
+    #extract-banner .banner-note { color: #7f8c8d; font-size: 0.74rem; }
+    #extract-banner button {
+      margin-top: 8px;
+      padding: 5px 12px;
+      background: #27ae60;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    #extract-banner button:hover { background: #1e8449; }
+    #extract-banner .btn-dismiss {
+      background: transparent;
+      color: #95a5a6;
+      border: 1px solid #d5dde3;
+      margin-left: 6px;
+    }
+    #extract-banner .btn-dismiss:hover { background: #f8f9fa; color: #2c3e50; }
+
+    /* ════════════════════════════════════════
+       プランB：履歴セクション
+    ════════════════════════════════════════ */
+    #history-section {
+      max-width: 1280px;
+      margin: 24px auto 0;
+      padding: 0 32px 32px;
+    }
+    #history-section .panel-header { cursor: pointer; }
+    #history-section .panel-header:hover { background: #245078; }
+    .history-toggle-icon { font-size: 0.75rem; opacity: 0.8; }
+
+    #history-body { padding: 16px 20px; }
+    #history-body.collapsed { display: none; }
+
+    #history-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .history-empty {
+      text-align: center;
+      color: #bdc3c7;
+      font-size: 0.85rem;
+      padding: 20px 0;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border: 1px solid #e8ecef;
+      border-radius: 8px;
+      background: #fdfdfd;
+      gap: 12px;
+      transition: background 0.15s;
+    }
+    .history-item:hover { background: #f4f8fc; }
+
+    .history-info { flex: 1; min-width: 0; }
+    .history-date {
+      font-size: 0.72rem;
+      color: #95a5a6;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .history-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #2c3e50;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+    .history-recipient {
+      font-size: 0.75rem;
+      color: #2c5f8a;
+    }
+
+    .history-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .btn-hist {
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+    .btn-hist-load {
+      background: #2c5f8a;
+      color: #fff;
+      border-color: #2c5f8a;
+    }
+    .btn-hist-load:hover { background: #1a3a5c; }
+    .btn-hist-delete {
+      background: #fff;
+      color: #c0392b;
+      border-color: #e8c9c6;
+    }
+    .btn-hist-delete:hover { background: #fff0f0; }
+
+    /* ── トースト通知 ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #2c3e50;
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 99px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1000;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
     /* ── フッター ── */
     footer {
       text-align: center;
@@ -258,7 +425,8 @@
 
     /* ── レスポンシブ ── */
     @media (max-width: 900px) {
-      main { grid-template-columns: 1fr; padding: 16px; }
+      main { grid-template-columns: 1fr; padding: 16px 16px 0; }
+      #history-section { padding: 0 16px 24px; }
     }
   </style>
 </head>
@@ -276,36 +444,42 @@
     <div class="panel-header">入力項目</div>
     <div class="panel-body">
 
+      <!-- ════ プランC：ドロップゾーン ════ -->
+      <div id="drop-zone" role="button" tabindex="0"
+           aria-label="見積書ファイルをドロップして自動解析">
+        <div class="dz-icon">📄</div>
+        <p><strong>見積書をドロップ</strong>またはクリックして選択<br>
+           テキスト抽出で金額を自動入力（PDF / Excel 対応予定）</p>
+      </div>
+      <input type="file" id="file-input" accept=".pdf,.xlsx,.xls,.docx,.txt,.csv" />
+
+      <!-- 解析結果バナー（非表示→抽出時に表示） -->
+      <div id="extract-banner">
+        <div class="banner-title">📊 解析結果</div>
+        <div id="extract-result-text"></div>
+        <div class="banner-note">※数値が正しいか確認してから適用してください</div>
+        <button id="btn-apply-extract">フォームに適用する</button>
+        <button class="btn-dismiss" id="btn-dismiss-extract">閉じる</button>
+      </div>
+
       <!-- 宛先 -->
       <div class="form-section-title">宛先（複数選択可）</div>
       <div class="recipient-group" id="recipient-group">
-        <label>
-          <input type="checkbox" value="亀澤" />
-          <span>亀澤様</span>
-        </label>
-        <label>
-          <input type="checkbox" value="樋口" />
-          <span>樋口様</span>
-        </label>
-        <label>
-          <input type="checkbox" value="庄司" />
-          <span>庄司様</span>
-        </label>
+        <label><input type="checkbox" value="亀澤" /><span>亀澤様</span></label>
+        <label><input type="checkbox" value="樋口" /><span>樋口様</span></label>
+        <label><input type="checkbox" value="庄司" /><span>庄司様</span></label>
       </div>
 
       <!-- 案件情報 -->
       <div class="form-section-title">案件情報</div>
-
       <div class="form-row">
         <label for="customer-name">顧客名</label>
         <input type="text" id="customer-name" placeholder="例：江藤正彦様邸" />
       </div>
-
       <div class="form-row">
         <label for="work-content">工事内容</label>
         <input type="text" id="work-content" placeholder="例：エアコン2台" />
       </div>
-
       <div class="form-row">
         <label for="address">設置先住所</label>
         <textarea id="address" placeholder="例：福岡県うきは市浮羽町小塩4624"></textarea>
@@ -313,7 +487,6 @@
 
       <!-- 金額 -->
       <div class="form-section-title">金額</div>
-
       <div class="form-row">
         <label for="net-price">アズマ → かがし屋様 NET（税抜）</label>
         <div class="amount-wrap">
@@ -321,7 +494,6 @@
           <span class="unit">円（税抜）</span>
         </div>
       </div>
-
       <div class="form-row">
         <label for="customer-price">かがし屋様 → お客様見積（税込）</label>
         <div class="amount-wrap">
@@ -329,25 +501,28 @@
           <span class="unit">円（税込）</span>
         </div>
       </div>
-
       <div class="form-row">
         <label>かがし屋 金銭的メリット（自動計算）</label>
         <div class="calc-result" id="merit-display">—</div>
         <span class="hint">お客様税込 − NET税抜 × 1.1</span>
       </div>
 
-      <!-- 差出人 -->
+      <!-- ════ プランA：差出人（固定・自動入力済み） ════ -->
       <div class="form-section-title">差出人（固定）</div>
       <div class="sender-box">
         <strong>株式会社アズマ　再エネ推進グループ</strong>
         三宅 晃綺（みやけ こうき）<br>
-        TEL: <input type="text" id="sender-tel" placeholder="000-0000-0000"
-          style="border:none;border-bottom:1px dashed #aaa;outline:none;width:130px;font-size:0.82rem;padding:1px 4px;background:transparent;" /><br>
-        E-mail: <input type="email" id="sender-email" placeholder="miyake@azuma.co.jp"
-          style="border:none;border-bottom:1px dashed #aaa;outline:none;width:180px;font-size:0.82rem;padding:1px 4px;background:transparent;" />
+        TEL:&nbsp;<input type="text" id="sender-tel" class="sender-inline"
+          value="0943(24)4001" /><br>
+        E-mail:&nbsp;<input type="email" id="sender-email" class="sender-inline"
+          value="miyake@e-azuma.jp" />
       </div>
 
-      <button id="btn-generate">メール文面を生成する</button>
+      <!-- ════ プランB：保存ボタン ＋ 生成ボタン ════ -->
+      <div class="btn-row">
+        <button id="btn-save" title="現在の入力内容を履歴に保存">💾 保存</button>
+        <button id="btn-generate">メール文面を生成する</button>
+      </div>
     </div>
   </section>
 
@@ -368,26 +543,64 @@
 
 </main>
 
+<!-- ════ プランB：履歴セクション ════ -->
+<section id="history-section">
+  <div class="panel">
+    <div class="panel-header" id="history-toggle" role="button" tabindex="0"
+         aria-expanded="true" aria-controls="history-body">
+      <span>📋 入力履歴（localStorage）</span>
+      <span class="history-toggle-icon" id="toggle-icon">▲ 折りたたむ</span>
+    </div>
+    <div id="history-body">
+      <div id="history-list">
+        <p class="history-empty">保存された履歴はありません</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- トースト通知 -->
+<div id="toast"></div>
+
 <footer>株式会社アズマ 再エネ推進グループ ／ かがし屋 見積提出メール作成ツール</footer>
 
 <script>
+  'use strict';
+
+  /* ──────────────────────────────────────────
+     ユーティリティ
+  ────────────────────────────────────────── */
   const $ = id => document.getElementById(id);
 
-  // ── 数値パース・フォーマット ──────────────────────
   function parseNum(id) {
-    return parseInt($( id).value.replace(/[^\d]/g, ''), 10) || 0;
+    return parseInt($(id).value.replace(/[^\d]/g, ''), 10) || 0;
   }
-  function fmt(n) {
-    return n.toLocaleString('ja-JP');
+  function fmt(n) { return n.toLocaleString('ja-JP'); }
+
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // ── メリット自動計算 ────────────────────────────
+  let toastTimer = null;
+  function showToast(msg, color = '#2c3e50') {
+    const el = $('toast');
+    el.textContent = msg;
+    el.style.background = color;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
+  /* ──────────────────────────────────────────
+     メリット自動計算
+  ────────────────────────────────────────── */
   function updateMerit() {
     const net      = parseNum('net-price');
     const customer = parseNum('customer-price');
     const merit    = customer - Math.round(net * 1.1);
     const el       = $('merit-display');
-
     if (net === 0 && customer === 0) {
       el.textContent = '—';
       el.className = 'calc-result';
@@ -396,37 +609,171 @@
     el.textContent = `${fmt(merit)} 円（税込）`;
     el.className   = merit >= 0 ? 'calc-result' : 'calc-result negative';
   }
-
   $('net-price').addEventListener('input', updateMerit);
   $('customer-price').addEventListener('input', updateMerit);
 
-  // ── 生成ロジック ────────────────────────────────
+  /* ══════════════════════════════════════════
+     プランC：ドロップゾーン ＋ テキスト解析
+  ══════════════════════════════════════════ */
+  const dropZone  = $('drop-zone');
+  const fileInput = $('file-input');
+
+  // クリック
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') fileInput.click();
+  });
+
+  // ドラッグ
+  dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+
+  // 抽出した候補を保持
+  let extractedData = {};
+
+  function handleFile(file) {
+    if (!file) return;
+    dropZone.querySelector('p').innerHTML =
+      `<strong>${escHtml(file.name)}</strong> を読み込み中…`;
+
+    const reader = new FileReader();
+
+    if (file.type === 'text/plain' || file.name.endsWith('.csv')) {
+      // テキスト・CSV: そのまま読んで解析
+      reader.onload = e => analyzeText(e.target.result, file.name);
+      reader.readAsText(file, 'UTF-8');
+    } else if (file.name.endsWith('.pdf')) {
+      // PDF: バイナリをテキストとして強制読込し、印字可能文字を抽出
+      // ※ 完全解析には PDF.js が必要。ここでは埋め込みテキストの断片を取得する枠組み
+      reader.onload = e => {
+        const raw = new Uint8Array(e.target.result);
+        let text = '';
+        for (let i = 0; i < raw.length; i++) {
+          const c = raw[i];
+          // ASCII 印字可能文字のみ取り出す（数字・記号・英字）
+          if (c >= 0x20 && c <= 0x7e) text += String.fromCharCode(c);
+        }
+        analyzeText(text, file.name);
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      // Excel・Word 等: 将来の対応のため枠組みのみ。現時点ではバイナリ断片を試みる
+      reader.onload = e => {
+        const raw = new Uint8Array(e.target.result);
+        let text = '';
+        for (let i = 0; i < raw.length; i++) {
+          const c = raw[i];
+          if (c >= 0x20 && c <= 0x7e) text += String.fromCharCode(c);
+        }
+        analyzeText(text, file.name);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    reader.onerror = () => {
+      showToast('ファイルの読み込みに失敗しました', '#c0392b');
+      dropZone.querySelector('p').innerHTML =
+        '<strong>見積書をドロップ</strong>またはクリックして選択';
+    };
+  }
+
+  /**
+   * テキストから金額・住所などを抽出しバナーに表示する
+   */
+  function analyzeText(text, fileName) {
+    dropZone.querySelector('p').innerHTML =
+      `📎 <strong>${escHtml(fileName)}</strong>（解析済み）`;
+
+    extractedData = {};
+
+    // ── 金額パターン ──────────────────────────────
+    // 「NET」「税抜」に続く数字 → net-price 候補
+    const netPatterns = [
+      /NET[^\d\n]{0,12}([\d,，]+)/i,
+      /税抜[^\d\n]{0,8}([\d,，]+)/,
+      /仕入[^\d\n]{0,8}([\d,，]+)/,
+    ];
+    for (const pat of netPatterns) {
+      const m = text.match(pat);
+      if (m) {
+        extractedData.netPrice = m[1].replace(/[,，]/g, '');
+        break;
+      }
+    }
+
+    // 「税込」「見積」「お客様」に続く数字 → customer-price 候補
+    const customerPatterns = [
+      /税込[^\d\n]{0,8}([\d,，]+)/,
+      /見積金額[^\d\n]{0,8}([\d,，]+)/,
+      /合計[^\d\n]{0,8}([\d,，]+)/,
+    ];
+    for (const pat of customerPatterns) {
+      const m = text.match(pat);
+      if (m) {
+        extractedData.customerPrice = m[1].replace(/[,，]/g, '');
+        break;
+      }
+    }
+
+    // ── 住所パターン ──────────────────────────────
+    const addrMatch = text.match(/([東京都|大阪府|京都府|北海道]?[ァ-ヶぁ-ゖ一-鿿]{2,6}[都道府県][^\n]{5,40}[\d０-９]+)/);
+    if (addrMatch) extractedData.address = addrMatch[1].trim();
+
+    // ── バナー表示 ──────────────────────────────
+    const lines = [];
+    if (extractedData.netPrice)      lines.push(`NET（税抜）: <b>${fmt(+extractedData.netPrice)}</b> 円`);
+    if (extractedData.customerPrice) lines.push(`お客様見積（税込）: <b>${fmt(+extractedData.customerPrice)}</b> 円`);
+    if (extractedData.address)       lines.push(`住所: <b>${escHtml(extractedData.address)}</b>`);
+
+    const banner = $('extract-banner');
+    if (lines.length === 0) {
+      showToast('金額・住所を自動検出できませんでした。手動で入力してください。', '#e67e22');
+      banner.style.display = 'none';
+      return;
+    }
+
+    $('extract-result-text').innerHTML = lines.join('<br>');
+    banner.style.display = 'block';
+  }
+
+  // 「フォームに適用する」
+  $('btn-apply-extract').addEventListener('click', () => {
+    if (extractedData.netPrice)      $('net-price').value      = extractedData.netPrice;
+    if (extractedData.customerPrice) $('customer-price').value = extractedData.customerPrice;
+    if (extractedData.address)       $('address').value        = extractedData.address;
+    updateMerit();
+    $('extract-banner').style.display = 'none';
+    showToast('フォームに適用しました ✅', '#27ae60');
+  });
+
+  // 「閉じる」
+  $('btn-dismiss-extract').addEventListener('click', () => {
+    $('extract-banner').style.display = 'none';
+  });
+
+  /* ──────────────────────────────────────────
+     メール生成
+  ────────────────────────────────────────── */
   $('btn-generate').addEventListener('click', generateEmail);
 
   function generateEmail() {
-    // 宛先
     const checked = [...document.querySelectorAll('#recipient-group input:checked')]
       .map(el => el.value + '様');
-    const recipient = checked.length > 0 ? checked.join('・') : '担当者様';
-
-    // 案件
+    const recipient    = checked.length > 0 ? checked.join('・') : '担当者様';
     const customerName = $('customer-name').value.trim() || '（顧客名未入力）';
     const workContent  = $('work-content').value.trim()  || '（工事内容未入力）';
     const address      = $('address').value.trim()       || '（住所未入力）';
-
-    // 金額
-    const net      = parseNum('net-price');
-    const customer = parseNum('customer-price');
-    const merit    = customer - Math.round(net * 1.1);
-    const netStr      = fmt(net);
-    const customerStr = fmt(customer);
-    const meritStr    = fmt(merit);
-
-    // 差出人
-    const tel   = $('sender-tel').value.trim();
-    const email = $('sender-email').value.trim();
-    const telLine   = tel   ? `TEL: ${tel}`        : 'TEL: ';
-    const emailLine = email ? `E-mail: ${email}`   : 'E-mail: ';
+    const net          = parseNum('net-price');
+    const customer     = parseNum('customer-price');
+    const merit        = customer - Math.round(net * 1.1);
+    const tel          = $('sender-tel').value.trim()    || 'TEL: ';
+    const email        = $('sender-email').value.trim()  || 'E-mail: ';
 
     const body =
 `株式会社かがし屋
@@ -439,11 +786,11 @@ ${customerName}${workContent}の御見積書になります。
 
 金額に関しては、
 【アズマ→かがし屋様へNET価格】
-${netStr}円（税抜）
+${fmt(net)}円（税抜）
 【かがし屋様→お客様見積金額】
-${customerStr}円（税込）
+${fmt(customer)}円（税込）
 【かがし屋金銭的メリット】
-${meritStr}円（税込）
+${fmt(merit)}円（税込）
 
 住所の記入お願い致します。
 
@@ -455,15 +802,17 @@ ${address}
 --
 株式会社アズマ　再エネ推進グループ
 三宅 晃綺（みやけ こうき）
-${telLine}
-${emailLine}`;
+TEL: ${tel}
+E-mail: ${email}`;
 
     const preview = $('preview-area');
     preview.classList.remove('placeholder');
     preview.textContent = body;
   }
 
-  // ── コピー ──────────────────────────────────────
+  /* ──────────────────────────────────────────
+     コピー ／ リセット
+  ────────────────────────────────────────── */
   $('btn-copy').addEventListener('click', async () => {
     const preview = $('preview-area');
     if (preview.classList.contains('placeholder')) return;
@@ -472,28 +821,154 @@ ${emailLine}`;
       const btn = $('btn-copy');
       btn.textContent = '✅ コピーしました';
       btn.classList.add('copied');
-      setTimeout(() => {
-        btn.textContent = '📋 コピー';
-        btn.classList.remove('copied');
-      }, 2000);
+      setTimeout(() => { btn.textContent = '📋 コピー'; btn.classList.remove('copied'); }, 2000);
     } catch {
       alert('コピーに失敗しました。手動で選択してコピーしてください。');
     }
   });
 
-  // ── リセット ────────────────────────────────────
   $('btn-reset').addEventListener('click', () => {
     document.querySelectorAll('#recipient-group input[type="checkbox"]')
       .forEach(el => { el.checked = false; });
-    ['customer-name','work-content','address','net-price','customer-price'].forEach(id => {
-      $(id).value = '';
-    });
+    ['customer-name','work-content','address','net-price','customer-price']
+      .forEach(id => { $(id).value = ''; });
     $('merit-display').textContent = '—';
     $('merit-display').className = 'calc-result';
+    $('extract-banner').style.display = 'none';
+    dropZone.querySelector('p').innerHTML =
+      '<strong>見積書をドロップ</strong>またはクリックして選択<br>テキスト抽出で金額を自動入力（PDF / Excel 対応予定）';
     const preview = $('preview-area');
     preview.classList.add('placeholder');
     preview.textContent = '← 左のフォームを入力して「メール文面を生成する」を押してください';
   });
+
+  /* ══════════════════════════════════════════
+     プランB：履歴（localStorage）
+  ══════════════════════════════════════════ */
+  const HIST_KEY = 'kagashiya_history_v1';
+
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }
+    catch { return []; }
+  }
+  function saveHistory(list) {
+    localStorage.setItem(HIST_KEY, JSON.stringify(list));
+  }
+
+  // 保存
+  $('btn-save').addEventListener('click', () => {
+    const recipients = [...document.querySelectorAll('#recipient-group input:checked')]
+      .map(el => el.value);
+    const entry = {
+      id:            Date.now(),
+      savedAt:       new Date().toLocaleString('ja-JP', { dateStyle: 'short', timeStyle: 'short' }),
+      recipients,
+      customerName:  $('customer-name').value.trim(),
+      workContent:   $('work-content').value.trim(),
+      address:       $('address').value.trim(),
+      netPrice:      $('net-price').value.trim(),
+      customerPrice: $('customer-price').value.trim(),
+    };
+
+    if (!entry.customerName && !entry.workContent && !entry.netPrice) {
+      showToast('少なくとも顧客名・工事内容・金額のいずれかを入力してから保存してください', '#e67e22');
+      return;
+    }
+
+    const list = getHistory();
+    list.unshift(entry);
+    if (list.length > 30) list.splice(30); // 最大30件
+    saveHistory(list);
+    renderHistory();
+    showToast('履歴に保存しました 💾', '#27ae60');
+  });
+
+  // 読込
+  function loadEntry(id) {
+    const entry = getHistory().find(e => e.id === id);
+    if (!entry) return;
+
+    document.querySelectorAll('#recipient-group input[type="checkbox"]').forEach(el => {
+      el.checked = entry.recipients.includes(el.value);
+    });
+    $('customer-name').value  = entry.customerName  || '';
+    $('work-content').value   = entry.workContent   || '';
+    $('address').value        = entry.address       || '';
+    $('net-price').value      = entry.netPrice      || '';
+    $('customer-price').value = entry.customerPrice || '';
+    updateMerit();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast('履歴を読み込みました', '#2c5f8a');
+  }
+
+  // 削除
+  function deleteEntry(id) {
+    const list = getHistory().filter(e => e.id !== id);
+    saveHistory(list);
+    renderHistory();
+    showToast('削除しました');
+  }
+
+  // 描画
+  function renderHistory() {
+    const list = getHistory();
+    const container = $('history-list');
+
+    if (list.length === 0) {
+      container.innerHTML = '<p class="history-empty">保存された履歴はありません</p>';
+      return;
+    }
+
+    container.innerHTML = list.map(e => {
+      const recipientLabel = e.recipients.length > 0
+        ? e.recipients.map(r => r + '様').join('・')
+        : '（宛先なし）';
+      const title = [e.customerName, e.workContent].filter(Boolean).join(' ') || '（タイトルなし）';
+      const net = e.netPrice ? `NET: ${fmt(+e.netPrice)}円` : '';
+      const cust = e.customerPrice ? `/ お客様: ${fmt(+e.customerPrice)}円` : '';
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-date">${escHtml(e.savedAt)}</span>
+            <span class="history-title">${escHtml(title)}</span>
+            <span class="history-recipient">${escHtml(recipientLabel)}　${escHtml(net)} ${escHtml(cust)}</span>
+          </div>
+          <div class="history-actions">
+            <button class="btn-hist btn-hist-load" data-id="${e.id}">読込</button>
+            <button class="btn-hist btn-hist-delete" data-id="${e.id}">削除</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    // イベントを委譲
+    container.querySelectorAll('.btn-hist-load').forEach(btn => {
+      btn.addEventListener('click', () => loadEntry(Number(btn.dataset.id)));
+    });
+    container.querySelectorAll('.btn-hist-delete').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (confirm('この履歴を削除しますか？')) deleteEntry(Number(btn.dataset.id));
+      });
+    });
+  }
+
+  // 折りたたみ
+  const histToggle = $('history-toggle');
+  const histBody   = $('history-body');
+  const toggleIcon = $('toggle-icon');
+
+  histToggle.addEventListener('click', () => {
+    const collapsed = histBody.classList.toggle('collapsed');
+    toggleIcon.textContent = collapsed ? '▼ 展開する' : '▲ 折りたたむ';
+    histToggle.setAttribute('aria-expanded', String(!collapsed));
+  });
+  histToggle.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') histToggle.click();
+  });
+
+  /* ──────────────────────────────────────────
+     初期化
+  ────────────────────────────────────────── */
+  renderHistory();
 </script>
 
 </body>
