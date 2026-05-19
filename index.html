@@ -24,11 +24,7 @@
       gap: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
-    header h1 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-    }
+    header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.05em; }
     header span.badge {
       font-size: 0.7rem;
       background: #e67e22;
@@ -41,7 +37,7 @@
     /* ── メインレイアウト ── */
     main {
       display: grid;
-      grid-template-columns: 360px 1fr;
+      grid-template-columns: 380px 1fr;
       gap: 24px;
       padding: 24px 32px;
       max-width: 1280px;
@@ -62,50 +58,23 @@
       font-size: 0.85rem;
       font-weight: 700;
       letter-spacing: 0.06em;
-      text-transform: uppercase;
     }
-    .panel-body {
-      padding: 20px;
-    }
+    .panel-body { padding: 20px; }
 
-    /* ── ドロップゾーン ── */
-    #drop-zone {
-      border: 2px dashed #a0b8cf;
-      border-radius: 8px;
-      padding: 28px 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
-      margin-bottom: 20px;
-    }
-    #drop-zone:hover,
-    #drop-zone.dragover {
-      background: #eaf3fb;
-      border-color: #2c5f8a;
-    }
-    #drop-zone .icon { font-size: 2rem; margin-bottom: 8px; }
-    #drop-zone p { font-size: 0.82rem; color: #7f8c8d; line-height: 1.6; }
-    #drop-zone strong { color: #2c5f8a; }
-    #file-input { display: none; }
-    #file-name {
-      font-size: 0.78rem;
-      color: #27ae60;
-      margin-top: 6px;
-      min-height: 1.2em;
-      word-break: break-all;
-    }
-
-    /* ── フォーム ── */
+    /* ── セクション見出し ── */
     .form-section-title {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       color: #7f8c8d;
-      text-transform: uppercase;
       letter-spacing: 0.08em;
-      margin: 18px 0 10px;
+      margin: 20px 0 10px;
       border-bottom: 1px solid #ecf0f1;
       padding-bottom: 4px;
+      text-transform: uppercase;
     }
+    .form-section-title:first-child { margin-top: 0; }
+
+    /* ── フォーム行 ── */
     .form-row {
       display: flex;
       flex-direction: column;
@@ -115,10 +84,9 @@
     .form-row label {
       font-size: 0.78rem;
       font-weight: 600;
-      color: #555;
+      color: #444;
     }
     .form-row input,
-    .form-row select,
     .form-row textarea {
       border: 1px solid #d5dde3;
       border-radius: 6px;
@@ -130,42 +98,93 @@
       width: 100%;
     }
     .form-row input:focus,
-    .form-row select:focus,
     .form-row textarea:focus {
       outline: none;
       border-color: #2c5f8a;
       box-shadow: 0 0 0 3px rgba(44,95,138,0.12);
     }
-    .form-row textarea { resize: vertical; min-height: 60px; }
-    .form-row .hint {
-      font-size: 0.72rem;
-      color: #95a5a6;
-    }
-    .input-prefix-wrap {
+    .form-row textarea { resize: vertical; min-height: 56px; }
+    .form-row .hint { font-size: 0.72rem; color: #95a5a6; }
+
+    /* 金額入力ラップ */
+    .amount-wrap {
       display: flex;
       align-items: center;
-      gap: 0;
     }
-    .input-prefix-wrap .prefix,
-    .input-prefix-wrap .suffix {
+    .amount-wrap .unit {
       background: #ecf0f1;
       border: 1px solid #d5dde3;
       padding: 8px 10px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #7f8c8d;
       white-space: nowrap;
+      border-left: none;
+      border-radius: 0 6px 6px 0;
     }
-    .input-prefix-wrap .prefix { border-right: none; border-radius: 6px 0 0 6px; }
-    .input-prefix-wrap .suffix { border-left: none; border-radius: 0 6px 6px 0; }
-    .input-prefix-wrap input {
-      border-radius: 0;
+    .amount-wrap input {
+      border-radius: 6px 0 0 6px;
       flex: 1;
     }
+
+    /* ── 宛先チェックボックス ── */
+    .recipient-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .recipient-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 7px 14px;
+      border: 1.5px solid #d5dde3;
+      border-radius: 20px;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .recipient-group label:hover { border-color: #2c5f8a; background: #eaf3fb; }
+    .recipient-group input[type="checkbox"] { display: none; }
+    .recipient-group input[type="checkbox"]:checked + span { color: #fff; }
+    .recipient-group label:has(input:checked) {
+      background: #2c5f8a;
+      border-color: #2c5f8a;
+      color: #fff;
+    }
+
+    /* ── 自動計算フィールド ── */
+    .calc-result {
+      background: #f0f7ff;
+      border: 1.5px solid #b3d4ef;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #1a5c8a;
+      letter-spacing: 0.02em;
+      min-height: 38px;
+    }
+    .calc-result.negative { background: #fff0f0; border-color: #f0b3b3; color: #a94442; }
+
+    /* ── 差出人ボックス ── */
+    .sender-box {
+      background: #f8f9fa;
+      border: 1px solid #d5dde3;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 0.82rem;
+      line-height: 1.9;
+      color: #444;
+    }
+    .sender-box strong { display: block; font-size: 0.85rem; color: #1a3a5c; margin-bottom: 2px; }
 
     /* ── 生成ボタン ── */
     #btn-generate {
       width: 100%;
-      padding: 12px;
+      padding: 13px;
       background: #e67e22;
       color: #fff;
       border: none;
@@ -173,7 +192,7 @@
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
-      margin-top: 8px;
+      margin-top: 10px;
       letter-spacing: 0.04em;
       transition: background 0.2s, transform 0.1s;
     }
@@ -190,14 +209,9 @@
       gap: 10px;
       flex-wrap: wrap;
     }
-    .preview-toolbar .label {
-      font-size: 0.8rem;
-      color: #7f8c8d;
-    }
-    .preview-toolbar .actions {
-      display: flex;
-      gap: 8px;
-    }
+    .preview-toolbar .label { font-size: 0.8rem; color: #7f8c8d; }
+    .preview-toolbar .actions { display: flex; gap: 8px; }
+
     .btn-icon {
       display: inline-flex;
       align-items: center;
@@ -210,27 +224,19 @@
       border: 1px solid transparent;
       transition: all 0.15s;
     }
-    #btn-copy {
-      background: #1a3a5c;
-      color: #fff;
-      border-color: #1a3a5c;
-    }
+    #btn-copy { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
     #btn-copy:hover { background: #0f2540; }
     #btn-copy.copied { background: #27ae60; border-color: #27ae60; }
-    #btn-reset {
-      background: #fff;
-      color: #7f8c8d;
-      border-color: #d5dde3;
-    }
+    #btn-reset { background: #fff; color: #7f8c8d; border-color: #d5dde3; }
     #btn-reset:hover { background: #f8f9fa; color: #2c3e50; }
 
     #preview-area {
-      padding: 24px 28px;
+      padding: 28px 32px;
       font-size: 0.9rem;
       line-height: 2;
       white-space: pre-wrap;
       word-break: break-word;
-      min-height: 420px;
+      min-height: 480px;
       color: #2c3e50;
     }
     #preview-area.placeholder {
@@ -252,7 +258,7 @@
 
     /* ── レスポンシブ ── */
     @media (max-width: 900px) {
-      main { grid-template-columns: 1fr; }
+      main { grid-template-columns: 1fr; padding: 16px; }
     }
   </style>
 </head>
@@ -260,7 +266,7 @@
 
 <header>
   <h1>かがし屋 見積メール作成ツール</h1>
-  <span class="badge">BETA</span>
+  <span class="badge">株式会社アズマ</span>
 </header>
 
 <main>
@@ -270,85 +276,75 @@
     <div class="panel-header">入力項目</div>
     <div class="panel-body">
 
-      <!-- ドロップゾーン -->
-      <div id="drop-zone" role="button" tabindex="0" aria-label="見積書ファイルをドロップ">
-        <div class="icon">📄</div>
-        <p><strong>見積書をここにドロップ</strong><br>または クリックしてファイルを選択<br><small>PDF / Excel / Word に対応予定</small></p>
-        <div id="file-name"></div>
-      </div>
-      <input type="file" id="file-input" accept=".pdf,.xlsx,.xls,.docx" />
-
-      <!-- 見積情報 -->
-      <div class="form-section-title">見積情報</div>
-
-      <div class="form-row">
-        <label for="quote-number">見積番号</label>
-        <input type="text" id="quote-number" placeholder="例：Q2024-001" />
-      </div>
-
-      <div class="form-row">
-        <label for="quote-date">見積日付</label>
-        <input type="date" id="quote-date" />
+      <!-- 宛先 -->
+      <div class="form-section-title">宛先（複数選択可）</div>
+      <div class="recipient-group" id="recipient-group">
+        <label>
+          <input type="checkbox" value="亀澤" />
+          <span>亀澤様</span>
+        </label>
+        <label>
+          <input type="checkbox" value="樋口" />
+          <span>樋口様</span>
+        </label>
+        <label>
+          <input type="checkbox" value="庄司" />
+          <span>庄司様</span>
+        </label>
       </div>
 
+      <!-- 案件情報 -->
+      <div class="form-section-title">案件情報</div>
+
       <div class="form-row">
-        <label for="quote-amount">見積金額（税抜）</label>
-        <div class="input-prefix-wrap">
-          <span class="suffix">¥</span>
-          <input type="text" id="quote-amount" placeholder="1,000,000" inputmode="numeric" />
-          <span class="suffix">円</span>
+        <label for="customer-name">顧客名</label>
+        <input type="text" id="customer-name" placeholder="例：江藤正彦様邸" />
+      </div>
+
+      <div class="form-row">
+        <label for="work-content">工事内容</label>
+        <input type="text" id="work-content" placeholder="例：エアコン2台" />
+      </div>
+
+      <div class="form-row">
+        <label for="address">設置先住所</label>
+        <textarea id="address" placeholder="例：福岡県うきは市浮羽町小塩4624"></textarea>
+      </div>
+
+      <!-- 金額 -->
+      <div class="form-section-title">金額</div>
+
+      <div class="form-row">
+        <label for="net-price">アズマ → かがし屋様 NET（税抜）</label>
+        <div class="amount-wrap">
+          <input type="text" id="net-price" placeholder="0" inputmode="numeric" />
+          <span class="unit">円（税抜）</span>
         </div>
-        <span class="hint">数字のみ入力（カンマ不要）</span>
       </div>
 
       <div class="form-row">
-        <label for="quote-tax">消費税率</label>
-        <select id="quote-tax">
-          <option value="10">10%</option>
-          <option value="8">8%</option>
-          <option value="0">非課税</option>
-        </select>
+        <label for="customer-price">かがし屋様 → お客様見積（税込）</label>
+        <div class="amount-wrap">
+          <input type="text" id="customer-price" placeholder="0" inputmode="numeric" />
+          <span class="unit">円（税込）</span>
+        </div>
       </div>
 
       <div class="form-row">
-        <label for="quote-validity">見積有効期限</label>
-        <input type="date" id="quote-validity" />
-        <span class="hint">未入力の場合は「発行日より30日」と表示</span>
+        <label>かがし屋 金銭的メリット（自動計算）</label>
+        <div class="calc-result" id="merit-display">—</div>
+        <span class="hint">お客様税込 − NET税抜 × 1.1</span>
       </div>
 
-      <div class="form-row">
-        <label for="quote-subject">件名（案件名）</label>
-        <input type="text" id="quote-subject" placeholder="例：〇〇システム開発一式" />
-      </div>
-
-      <!-- 差出人情報 -->
-      <div class="form-section-title">差出人情報</div>
-
-      <div class="form-row">
-        <label for="sender-company">会社名</label>
-        <input type="text" id="sender-company" placeholder="例：株式会社〇〇" />
-      </div>
-
-      <div class="form-row">
-        <label for="sender-name">担当者名</label>
-        <input type="text" id="sender-name" placeholder="例：山田 太郎" />
-      </div>
-
-      <div class="form-row">
-        <label for="sender-tel">電話番号</label>
-        <input type="tel" id="sender-tel" placeholder="例：03-0000-0000" />
-      </div>
-
-      <div class="form-row">
-        <label for="sender-email">メールアドレス</label>
-        <input type="email" id="sender-email" placeholder="例：yamada@example.co.jp" />
-      </div>
-
-      <!-- 備考 -->
-      <div class="form-section-title">備考・追記事項</div>
-      <div class="form-row">
-        <label for="extra-note">追記メッセージ（任意）</label>
-        <textarea id="extra-note" placeholder="特記事項があればご記入ください"></textarea>
+      <!-- 差出人 -->
+      <div class="form-section-title">差出人（固定）</div>
+      <div class="sender-box">
+        <strong>株式会社アズマ　再エネ推進グループ</strong>
+        三宅 晃綺（みやけ こうき）<br>
+        TEL: <input type="text" id="sender-tel" placeholder="000-0000-0000"
+          style="border:none;border-bottom:1px dashed #aaa;outline:none;width:130px;font-size:0.82rem;padding:1px 4px;background:transparent;" /><br>
+        E-mail: <input type="email" id="sender-email" placeholder="miyake@azuma.co.jp"
+          style="border:none;border-bottom:1px dashed #aaa;outline:none;width:180px;font-size:0.82rem;padding:1px 4px;background:transparent;" />
       </div>
 
       <button id="btn-generate">メール文面を生成する</button>
@@ -372,127 +368,95 @@
 
 </main>
 
-<footer>株式会社かがし屋 見積提出メール作成ツール</footer>
+<footer>株式会社アズマ 再エネ推進グループ ／ かがし屋 見積提出メール作成ツール</footer>
 
 <script>
-  // ── ユーティリティ ──────────────────────────────
   const $ = id => document.getElementById(id);
 
-  function formatMoney(raw) {
-    const n = parseInt(raw.replace(/[^\d]/g, ''), 10);
-    return isNaN(n) ? '—' : n.toLocaleString('ja-JP');
+  // ── 数値パース・フォーマット ──────────────────────
+  function parseNum(id) {
+    return parseInt($( id).value.replace(/[^\d]/g, ''), 10) || 0;
+  }
+  function fmt(n) {
+    return n.toLocaleString('ja-JP');
   }
 
-  function formatDate(val) {
-    if (!val) return null;
-    const d = new Date(val);
-    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  // ── メリット自動計算 ────────────────────────────
+  function updateMerit() {
+    const net      = parseNum('net-price');
+    const customer = parseNum('customer-price');
+    const merit    = customer - Math.round(net * 1.1);
+    const el       = $('merit-display');
+
+    if (net === 0 && customer === 0) {
+      el.textContent = '—';
+      el.className = 'calc-result';
+      return;
+    }
+    el.textContent = `${fmt(merit)} 円（税込）`;
+    el.className   = merit >= 0 ? 'calc-result' : 'calc-result negative';
   }
 
-  function today() {
-    return new Date().toISOString().slice(0, 10);
-  }
-
-  // ── ドロップゾーン ──────────────────────────────
-  const dropZone = $('drop-zone');
-  const fileInput = $('file-input');
-
-  dropZone.addEventListener('click', () => fileInput.click());
-  dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
-
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    handleFile(e.dataTransfer.files[0]);
-  });
-
-  fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
-
-  function handleFile(file) {
-    if (!file) return;
-    $('file-name').textContent = `添付済み：${file.name}`;
-    // TODO: ファイル内容解析・数値自動抽出
-  }
+  $('net-price').addEventListener('input', updateMerit);
+  $('customer-price').addEventListener('input', updateMerit);
 
   // ── 生成ロジック ────────────────────────────────
   $('btn-generate').addEventListener('click', generateEmail);
 
   function generateEmail() {
-    const quoteNumber  = $('quote-number').value.trim();
-    const quoteDateRaw = $('quote-date').value || today();
-    const amountRaw    = $('quote-amount').value;
-    const taxRate      = parseInt($('quote-tax').value, 10);
-    const validityRaw  = $('quote-validity').value;
-    const subject      = $('quote-subject').value.trim();
-    const senderCo     = $('sender-company').value.trim();
-    const senderName   = $('sender-name').value.trim();
-    const senderTel    = $('sender-tel').value.trim();
-    const senderEmail  = $('sender-email').value.trim();
-    const extraNote    = $('extra-note').value.trim();
+    // 宛先
+    const checked = [...document.querySelectorAll('#recipient-group input:checked')]
+      .map(el => el.value + '様');
+    const recipient = checked.length > 0 ? checked.join('・') : '担当者様';
 
-    // 金額計算
-    const amountNum = parseInt(amountRaw.replace(/[^\d]/g, ''), 10);
-    const amountStr = isNaN(amountNum) ? '—' : amountNum.toLocaleString('ja-JP');
-    const taxStr    = taxRate === 0
-      ? '（非課税）'
-      : (() => {
-          const tax = Math.floor(amountNum * taxRate / 100);
-          const total = amountNum + tax;
-          return `（消費税${taxRate}%：${tax.toLocaleString('ja-JP')}円、合計：${total.toLocaleString('ja-JP')}円）`;
-        })();
+    // 案件
+    const customerName = $('customer-name').value.trim() || '（顧客名未入力）';
+    const workContent  = $('work-content').value.trim()  || '（工事内容未入力）';
+    const address      = $('address').value.trim()       || '（住所未入力）';
 
-    // 日付
-    const quoteDate  = formatDate(quoteDateRaw);
-    const validity   = validityRaw
-      ? formatDate(validityRaw)
-      : '発行日より30日間';
+    // 金額
+    const net      = parseNum('net-price');
+    const customer = parseNum('customer-price');
+    const merit    = customer - Math.round(net * 1.1);
+    const netStr      = fmt(net);
+    const customerStr = fmt(customer);
+    const meritStr    = fmt(merit);
 
-    // 件名
-    const subjectLine = subject || '弊社サービス';
-
-    // 差出人ブロック
-    const senderBlock = [
-      senderCo   ? senderCo   : null,
-      senderName ? senderName : null,
-      senderTel  ? `TEL：${senderTel}` : null,
-      senderEmail? `E-mail：${senderEmail}` : null,
-    ].filter(Boolean).join('\n');
-
-    // 見積番号行
-    const quoteNumLine = quoteNumber ? `見積番号：${quoteNumber}\n` : '';
-
-    // 追記
-    const noteLine = extraNote ? `\n-----------------------------------------\n${extraNote}\n-----------------------------------------\n` : '';
+    // 差出人
+    const tel   = $('sender-tel').value.trim();
+    const email = $('sender-email').value.trim();
+    const telLine   = tel   ? `TEL: ${tel}`        : 'TEL: ';
+    const emailLine = email ? `E-mail: ${email}`   : 'E-mail: ';
 
     const body =
 `株式会社かがし屋
-ご担当者様
+${recipient}
 
 お世話になっております。
-${senderCo || '弊社'}の${senderName || '担当'}でございます。
+アズマ三宅です。
 
-この度は、${subjectLine}に関しまして、
-下記のとおり見積書をご提出させていただきます。
-何卒ご査収のほど、よろしくお願い申し上げます。
+${customerName}${workContent}の御見積書になります。
 
-━━━━━━━━━━━━━━━━━━━━━━━
-　見 積 内 容
-━━━━━━━━━━━━━━━━━━━━━━━
-件　　名　：${subjectLine}
-${quoteNumLine}見積日付　：${quoteDate}
-見積金額　：￥${amountStr}　${taxStr}
-有効期限　：${validity}
-━━━━━━━━━━━━━━━━━━━━━━━
-${noteLine}
-ご不明な点やご質問がございましたら、
-お気軽にお申し付けください。
-引き続き、どうぞよろしくお願いいたします。
+金額に関しては、
+【アズマ→かがし屋様へNET価格】
+${netStr}円（税抜）
+【かがし屋様→お客様見積金額】
+${customerStr}円（税込）
+【かがし屋金銭的メリット】
+${meritStr}円（税込）
 
----
-${senderBlock || '（差出人情報を入力してください）'}
-`;
+住所の記入お願い致します。
+
+${address}
+
+ご査収の程宜しくお願い致します。
+引き続き宜しくお願い致します。
+
+--
+株式会社アズマ　再エネ推進グループ
+三宅 晃綺（みやけ こうき）
+${telLine}
+${emailLine}`;
 
     const preview = $('preview-area');
     preview.classList.remove('placeholder');
@@ -501,10 +465,10 @@ ${senderBlock || '（差出人情報を入力してください）'}
 
   // ── コピー ──────────────────────────────────────
   $('btn-copy').addEventListener('click', async () => {
-    const text = $('preview-area').textContent;
-    if (!text || $('preview-area').classList.contains('placeholder')) return;
+    const preview = $('preview-area');
+    if (preview.classList.contains('placeholder')) return;
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(preview.textContent);
       const btn = $('btn-copy');
       btn.textContent = '✅ コピーしました';
       btn.classList.add('copied');
@@ -519,18 +483,17 @@ ${senderBlock || '（差出人情報を入力してください）'}
 
   // ── リセット ────────────────────────────────────
   $('btn-reset').addEventListener('click', () => {
-    document.querySelectorAll('input, textarea, select').forEach(el => {
-      if (el.type === 'select-one') el.selectedIndex = 0;
-      else el.value = '';
+    document.querySelectorAll('#recipient-group input[type="checkbox"]')
+      .forEach(el => { el.checked = false; });
+    ['customer-name','work-content','address','net-price','customer-price'].forEach(id => {
+      $(id).value = '';
     });
-    $('file-name').textContent = '';
+    $('merit-display').textContent = '—';
+    $('merit-display').className = 'calc-result';
     const preview = $('preview-area');
     preview.classList.add('placeholder');
     preview.textContent = '← 左のフォームを入力して「メール文面を生成する」を押してください';
   });
-
-  // ── 初期値：今日の日付をセット ─────────────────
-  $('quote-date').value = today();
 </script>
 
 </body>
