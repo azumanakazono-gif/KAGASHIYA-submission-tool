@@ -429,6 +429,8 @@
       #history-section { padding: 0 16px 24px; }
     }
   </style>
+  <!-- SheetJS: xlsx ファイルをセル単位で解析するために使用 -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -642,98 +644,212 @@
     dropZone.querySelector('p').innerHTML =
       `<strong>${escHtml(file.name)}</strong> を読み込み中…`;
 
-    const reader = new FileReader();
-
-    if (file.type === 'text/plain' || file.name.endsWith('.csv')) {
-      // テキスト・CSV: そのまま読んで解析
-      reader.onload = e => analyzeText(e.target.result, file.name);
-      reader.readAsText(file, 'UTF-8');
-    } else if (file.name.endsWith('.pdf')) {
-      // PDF: バイナリをテキストとして強制読込し、印字可能文字を抽出
-      // ※ 完全解析には PDF.js が必要。ここでは埋め込みテキストの断片を取得する枠組み
-      reader.onload = e => {
-        const raw = new Uint8Array(e.target.result);
-        let text = '';
-        for (let i = 0; i < raw.length; i++) {
-          const c = raw[i];
-          // ASCII 印字可能文字のみ取り出す（数字・記号・英字）
-          if (c >= 0x20 && c <= 0x7e) text += String.fromCharCode(c);
-        }
-        analyzeText(text, file.name);
-      };
-      reader.readAsArrayBuffer(file);
-    } else {
-      // Excel・Word 等: 将来の対応のため枠組みのみ。現時点ではバイナリ断片を試みる
-      reader.onload = e => {
-        const raw = new Uint8Array(e.target.result);
-        let text = '';
-        for (let i = 0; i < raw.length; i++) {
-          const c = raw[i];
-          if (c >= 0x20 && c <= 0x7e) text += String.fromCharCode(c);
-        }
-        analyzeText(text, file.name);
-      };
-      reader.readAsArrayBuffer(file);
-    }
+    const isXlsx = /\.xlsx?$/i.test(file.name);
+    const isCsv  = /\.(csv|txt)$/i.test(file.name);
+    const reader  = new FileReader();
 
     reader.onerror = () => {
       showToast('ファイルの読み込みに失敗しました', '#c0392b');
       dropZone.querySelector('p').innerHTML =
         '<strong>見積書をドロップ</strong>またはクリックして選択';
     };
+
+    if (isXlsx) {
+      // ── Excel: SheetJS でセル単位に解析 ──────────
+      reader.onload = e => {
+        try {
+          const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+          analyzeExcel(wb, file.name);
+        } catch {
+          showToast('Excelの解析に失敗しました。手動で入力してください。', '#e67e22');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+
+    } else if (isCsv) {
+      // ── CSV / テキスト: 文字列として読み込み ──────
+      reader.onload = e => analyzeText(e.target.result, file.name);
+      reader.readAsText(file, 'UTF-8');
+
+    } else {
+      // ── PDF / Word: 印字可能ASCII文字を抽出してフォールバック解析 ──
+      reader.onload = e => {
+        const raw  = new Uint8Array(e.target.result);
+        let   text = '';
+        for (let i = 0; i < raw.length; i++) {
+          const c = raw[i];
+          if (c >= 0x20 && c <= 0x7e) text += String.fromCharCode(c);
+        }
+        analyzeText(text, file.name);
+      };
+      reader.readAsArrayBuffer(file);
+    }
   }
 
-  /**
-   * テキストから金額・住所などを抽出しバナーに表示する
-   */
+  /* ──────────────────────────────────────────
+     ファイル名から顧客名・工事内容を抽出
+     想定パターン: かがし屋_[顧客名様邸][工事内容].xlsx
+  ────────────────────────────────────────── */
+  function parseFileName(fileName) {
+    const base = fileName.replace(/\.xlsx?$/i, '').replace(/\.pdf$/i, '');
+
+    // 顧客名: "_" 直後から "様邸" まで
+    const custM = base.match(/_(.+?様邸)/);
+    if (custM && !extractedData.customerName) {
+      extractedData.customerName = custM[1];
+      // 工事内容: "様邸" 以降（エアコン台数が後から上書き可能）
+      const tail = base.slice(base.indexOf(custM[1]) + custM[1].length).trim();
+      if (tail && !extractedData.workContent) extractedData.workContent = tail;
+    }
+  }
+
+  /* ──────────────────────────────────────────
+     Excel 解析: SheetJS を使いセル単位で処理
+  ────────────────────────────────────────── */
+  function analyzeExcel(wb, fileName) {
+    extractedData = {};
+    parseFileName(fileName);
+
+    // 全シートのセルをフラット化: {val, r, c, sheet}
+    const cells = [];
+    wb.SheetNames.forEach(sName => {
+      const ws = wb.Sheets[sName];
+      if (!ws) return;
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+      rows.forEach((row, r) => {
+        if (!Array.isArray(row)) return;
+        row.forEach((val, c) => {
+          if (val !== null && val !== undefined && val !== '') {
+            cells.push({ val, r, c, sheet: sName });
+          }
+        });
+      });
+    });
+
+    // ── ラベル → 隣接セル方式で金額を抽出 ──────────
+    const NET_KEYS  = ['NET', 'Net', 'net', 'NET価格', 'NET金額', '税抜', '税抜金額',
+                       '税抜合計', '仕入', '仕入金額', 'アズマ', 'かがし屋NET'];
+    const CUST_KEYS = ['税込', '税込合計', '税込金額', 'お客様', 'お客様見積',
+                       '見積金額', '合計金額', '請求金額', 'かがし屋→お客様'];
+
+    for (const cell of cells) {
+      const str    = String(cell.val).trim();
+      const isNet  = NET_KEYS.some(k => str.includes(k));
+      const isCust = CUST_KEYS.some(k => str.includes(k));
+      if (!isNet && !isCust) continue;
+
+      // 右1〜3・真下を候補として探す
+      const neighbors = cells.filter(nb =>
+        nb.sheet === cell.sheet && (
+          (nb.r === cell.r && nb.c >= cell.c + 1 && nb.c <= cell.c + 3) ||
+          (nb.r === cell.r + 1 && nb.c === cell.c)
+        )
+      ).sort((a, b) => (a.r - b.r) || (a.c - b.c));
+
+      for (const nb of neighbors) {
+        const raw = typeof nb.val === 'number'
+          ? nb.val
+          : parseInt(String(nb.val).replace(/[^\d]/g, ''), 10);
+        if (isNaN(raw) || raw < 1000) continue; // 1,000円未満は無視
+        if (isNet  && !extractedData.netPrice)      { extractedData.netPrice      = String(Math.round(raw)); break; }
+        if (isCust && !extractedData.customerPrice) { extractedData.customerPrice = String(Math.round(raw)); break; }
+      }
+    }
+
+    // ── エアコン台数を検索 ───────────────────────────
+    // パターン①: "エアコン2台" が1つのセルに入っている
+    // パターン②: "エアコン" セルの右列に数字、さらに右に"台"
+    for (const cell of cells) {
+      const str = String(cell.val);
+
+      const inlineM = str.match(/エアコン[^\d]*(\d+)\s*台/);
+      if (inlineM) {
+        extractedData.workContent = `エアコン${inlineM[1]}台`;
+        break;
+      }
+
+      if (str.includes('エアコン') && !extractedData.workContent) {
+        // 同じ行の右方向を探す
+        const rowCells = cells
+          .filter(nb => nb.sheet === cell.sheet && nb.r === cell.r && nb.c > cell.c && nb.c <= cell.c + 5)
+          .sort((a, b) => a.c - b.c);
+
+        for (let i = 0; i < rowCells.length; i++) {
+          const nbStr = String(rowCells[i].val).trim();
+          // "2台" 形式
+          const qtyM = nbStr.match(/^(\d+)\s*台$/);
+          if (qtyM) { extractedData.workContent = `エアコン${qtyM[1]}台`; break; }
+          // 純数字のあとに単位セル"台"が続く
+          if (/^\d+$/.test(nbStr) && rowCells[i + 1] && String(rowCells[i + 1].val).trim() === '台') {
+            extractedData.workContent = `エアコン${nbStr}台`; break;
+          }
+        }
+        if (extractedData.workContent) break;
+      }
+    }
+
+    showExtractBanner(fileName);
+  }
+
+  /* ──────────────────────────────────────────
+     テキスト / PDF フォールバック解析
+  ────────────────────────────────────────── */
   function analyzeText(text, fileName) {
+    extractedData = {};
+    parseFileName(fileName);
+
+    // NET価格（税抜）
+    const netPats = [
+      /(?:NET|net|Net)[^\d\n]{0,15}([\d,，]+)/,
+      /税抜[^\d\n]{0,10}([\d,，]+)/,
+      /仕入[^\d\n]{0,10}([\d,，]+)/,
+      /アズマ[^\d\n]{0,20}([\d,，]+)/,
+    ];
+    for (const p of netPats) {
+      const m = text.match(p);
+      if (m) { extractedData.netPrice = m[1].replace(/[,，]/g, ''); break; }
+    }
+
+    // お客様見積（税込）
+    const custPats = [
+      /税込[^\d\n]{0,10}([\d,，]+)/,
+      /お客様[^\d\n]{0,20}([\d,，]+)/,
+      /見積金額[^\d\n]{0,10}([\d,，]+)/,
+      /合計[^\d\n]{0,10}([\d,，]+)/,
+    ];
+    for (const p of custPats) {
+      const m = text.match(p);
+      if (m) { extractedData.customerPrice = m[1].replace(/[,，]/g, ''); break; }
+    }
+
+    // エアコン台数
+    const acM = text.match(/エアコン[^\d]*(\d+)\s*台/);
+    if (acM) extractedData.workContent = `エアコン${acM[1]}台`;
+
+    // 住所
+    const addrM = text.match(/((?:北海道|東京都|大阪府|京都府|[^\s]{2,4}[都道府県])[^\n\r]{5,50}[\d０-９]+)/);
+    if (addrM) extractedData.address = addrM[1].trim();
+
+    showExtractBanner(fileName);
+  }
+
+  /* ──────────────────────────────────────────
+     解析結果バナーの表示
+  ────────────────────────────────────────── */
+  function showExtractBanner(fileName) {
     dropZone.querySelector('p').innerHTML =
       `📎 <strong>${escHtml(fileName)}</strong>（解析済み）`;
 
-    extractedData = {};
-
-    // ── 金額パターン ──────────────────────────────
-    // 「NET」「税抜」に続く数字 → net-price 候補
-    const netPatterns = [
-      /NET[^\d\n]{0,12}([\d,，]+)/i,
-      /税抜[^\d\n]{0,8}([\d,，]+)/,
-      /仕入[^\d\n]{0,8}([\d,，]+)/,
-    ];
-    for (const pat of netPatterns) {
-      const m = text.match(pat);
-      if (m) {
-        extractedData.netPrice = m[1].replace(/[,，]/g, '');
-        break;
-      }
-    }
-
-    // 「税込」「見積」「お客様」に続く数字 → customer-price 候補
-    const customerPatterns = [
-      /税込[^\d\n]{0,8}([\d,，]+)/,
-      /見積金額[^\d\n]{0,8}([\d,，]+)/,
-      /合計[^\d\n]{0,8}([\d,，]+)/,
-    ];
-    for (const pat of customerPatterns) {
-      const m = text.match(pat);
-      if (m) {
-        extractedData.customerPrice = m[1].replace(/[,，]/g, '');
-        break;
-      }
-    }
-
-    // ── 住所パターン ──────────────────────────────
-    const addrMatch = text.match(/([東京都|大阪府|京都府|北海道]?[ァ-ヶぁ-ゖ一-鿿]{2,6}[都道府県][^\n]{5,40}[\d０-９]+)/);
-    if (addrMatch) extractedData.address = addrMatch[1].trim();
-
-    // ── バナー表示 ──────────────────────────────
     const lines = [];
+    if (extractedData.customerName)  lines.push(`顧客名: <b>${escHtml(extractedData.customerName)}</b>`);
+    if (extractedData.workContent)   lines.push(`工事内容: <b>${escHtml(extractedData.workContent)}</b>`);
     if (extractedData.netPrice)      lines.push(`NET（税抜）: <b>${fmt(+extractedData.netPrice)}</b> 円`);
     if (extractedData.customerPrice) lines.push(`お客様見積（税込）: <b>${fmt(+extractedData.customerPrice)}</b> 円`);
     if (extractedData.address)       lines.push(`住所: <b>${escHtml(extractedData.address)}</b>`);
 
     const banner = $('extract-banner');
     if (lines.length === 0) {
-      showToast('金額・住所を自動検出できませんでした。手動で入力してください。', '#e67e22');
+      showToast('項目を自動検出できませんでした。手動で入力してください。', '#e67e22');
       banner.style.display = 'none';
       return;
     }
@@ -744,6 +860,8 @@
 
   // 「フォームに適用する」
   $('btn-apply-extract').addEventListener('click', () => {
+    if (extractedData.customerName)  $('customer-name').value  = extractedData.customerName;
+    if (extractedData.workContent)   $('work-content').value   = extractedData.workContent;
     if (extractedData.netPrice)      $('net-price').value      = extractedData.netPrice;
     if (extractedData.customerPrice) $('customer-price').value = extractedData.customerPrice;
     if (extractedData.address)       $('address').value        = extractedData.address;
