@@ -753,12 +753,13 @@
         // Date オブジェクト（Excel日付セル）は金額として扱わない
         if (nb.val instanceof Date) continue;
 
+        // 数値は Math.round で浮動小数点誤差を吸収、文字列は数字以外を除去して parseInt
         const raw = typeof nb.val === 'number'
-          ? nb.val
+          ? Math.round(nb.val)
           : parseInt(String(nb.val).replace(/[^\d]/g, ''), 10);
 
-        // 1,000円未満・1億円超・小数は無視（9999999999 等の sentinel 値を排除）
-        if (isNaN(raw) || raw < 1000 || raw > 99_999_999 || !Number.isInteger(raw)) continue;
+        // 有効範囲: 1,000円 以上 999,999,999円 以下（sentinel 値 9999999999 等を排除）
+        if (isNaN(raw) || raw < 1000 || raw > 999_999_999) continue;
 
         if (isNet  && !extractedData.netPrice)      { extractedData.netPrice      = String(raw); break; }
         if (isCust && !extractedData.customerPrice) { extractedData.customerPrice = String(raw); break; }
