@@ -694,14 +694,15 @@
   ────────────────────────────────────────── */
   function parseFileName(fileName) {
     const base = fileName.replace(/\.xlsx?$/i, '').replace(/\.pdf$/i, '');
+    const productKeys = ['太陽光発電','エアコン','蓄電池','エコキュート','LED','照明'];
 
     // 顧客名: "_" 直後から "様邸" まで
     const custM = base.match(/_(.+?様邸)/);
     if (custM && !extractedData.customerName) {
       extractedData.customerName = custM[1].replace(/\d+/g, '').trim();
-      // 工事内容: "様邸" 以降
-      const tail = base.slice(base.indexOf(custM[1]) + custM[1].length).trim();
-      if (tail && !extractedData.workContent) extractedData.workContent = tail;
+      // 工事内容: "様邸" 以降（商材キーワード〜末尾を確実に取得）
+      const afterYashiro = base.slice(base.indexOf(custM[1]) + custM[1].length).trim();
+      if (afterYashiro && !extractedData.workContent) extractedData.workContent = afterYashiro;
     }
 
     // 「様邸」がない場合: 商材キーワード直前の文字列を顧客名として抽出
@@ -713,7 +714,6 @@
         .replace(/^ユーザー[_\s]*/,       '')
         .replace(/^[\d_]+/,              '')
         .trim();
-      const productKeys = ['太陽光発電','エアコン','蓄電池','エコキュート','LED','照明'];
       for (const key of productKeys) {
         const idx = stripped.indexOf(key);
         if (idx > 0) {
@@ -723,6 +723,13 @@
           break;
         }
       }
+    }
+
+    // 工事内容が未取得の場合: base から商材キーワード〜末尾（〜工事）を直接 regex で抽出
+    if (!extractedData.workContent) {
+      const pattern = new RegExp('(' + productKeys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + '.+)$');
+      const wm = base.match(pattern);
+      if (wm) extractedData.workContent = wm[1].trim();
     }
   }
 
