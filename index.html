@@ -722,8 +722,8 @@
     extractedData = {};
     parseFileName(fileName);
 
-    // ── 「表紙」シートの U14（row=13, col=20）をピンポイント取得 ──
-    const targetSheet = wb.Sheets['表紙'];
+    // ── 最初のシートの U14（row=13, col=20）をピンポイント取得 ──
+    const targetSheet = wb.Sheets[wb.SheetNames[0]];
     const u14Raw = targetSheet ? targetSheet['U14'] : null;
     const u14Val = u14Raw ? (typeof u14Raw.v === 'number' ? Math.round(u14Raw.v) : parseInt(String(u14Raw.v).replace(/[^\d]/g, ''), 10)) : NaN;
     const u14 = (!isNaN(u14Val) && u14Val >= 1000 && u14Val <= 999_999_999) ? u14Val : null;
