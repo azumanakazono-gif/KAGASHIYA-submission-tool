@@ -506,7 +506,7 @@
       <div class="form-row">
         <label>かがし屋 金銭的メリット（自動計算）</label>
         <div class="calc-result" id="merit-display">—</div>
-        <span class="hint">お客様税込 − NET税抜 × 1.1</span>
+        <span class="hint" id="merit-formula">お客様税込 − NET税抜 × 1.1</span>
       </div>
 
       <!-- ════ プランA：差出人（固定・自動入力済み） ════ -->
@@ -820,6 +820,14 @@
     if (extractedData.customerName) document.getElementById('customer-name').value = extractedData.customerName;
     if (extractedData.workContent)  document.getElementById('work-content').value  = extractedData.workContent;
     if (extractedData.address)      document.getElementById('address').value        = extractedData.address;
+
+    // ── 掛け率を計算式ラベルに反映 ─────────────────
+    if (base.startsWith('NET')) {
+      const matchedRate = RATE_MAP.find(m => base.includes(m.key));
+      const usedRate    = matchedRate ? matchedRate.rate : 1.1;
+      const formulaEl   = document.getElementById('merit-formula');
+      if (formulaEl) formulaEl.textContent = `お客様税込 − NET税抜 × ${usedRate}`;
+    }
     document.getElementById('net-price').value      = extractedData.netPrice      || '';
     document.getElementById('customer-price').value = extractedData.customerPrice || '';
     document.getElementById('net-price').dispatchEvent(new Event('input'));
