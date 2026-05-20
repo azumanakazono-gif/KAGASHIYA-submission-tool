@@ -699,7 +699,7 @@
     // 顧客名: "_" 直後から "様邸" まで
     const custM = base.match(/_(.+?様邸)/);
     if (custM && !extractedData.customerName) {
-      extractedData.customerName = custM[1].replace(/^\d+/, '').trim();
+      extractedData.customerName = custM[1].replace(/\d+/g, '').trim();
       // 工事内容: "様邸" 以降（エアコン台数が後から上書き可能）
       const tail = base.slice(base.indexOf(custM[1]) + custM[1].length).trim();
       if (tail && !extractedData.workContent) extractedData.workContent = tail;
