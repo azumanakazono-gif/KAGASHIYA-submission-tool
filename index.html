@@ -706,12 +706,19 @@
 
     // 「様邸」がない場合: 商材キーワード直前の文字列を顧客名として抽出
     if (!extractedData.customerName) {
-      const stripped = base.replace(/^[\d_]+/, '').replace(/\.xlsx?$/i, '').trim();
+      const stripped = base
+        .replace(/^NET見積書[_\s]*/,    '')
+        .replace(/^ユーザー見積書[_\s]*/, '')
+        .replace(/^NET[_\s]*/,           '')
+        .replace(/^ユーザー[_\s]*/,       '')
+        .replace(/^[\d_]+/,              '')
+        .trim();
       const productKeys = ['太陽光発電','エアコン','蓄電池','エコキュート','LED','照明'];
       for (const key of productKeys) {
         const idx = stripped.indexOf(key);
         if (idx > 0) {
-          extractedData.customerName = stripped.slice(0, idx).replace(/\d+/g, '').trim();
+          extractedData.customerName = stripped.slice(0, idx)
+            .replace(/\d+/g, '').replace(/[　\s]+/g, '').trim();
           if (!extractedData.workContent) extractedData.workContent = stripped.slice(idx).trim();
           break;
         }
