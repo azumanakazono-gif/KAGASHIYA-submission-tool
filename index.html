@@ -753,7 +753,7 @@
         extractedData.netPrice = String(u14);
         const match = RATE_MAP.find(m => base.includes(m.key));
         const rate  = match ? match.rate : 1.1;
-        extractedData.customerPrice = String(Math.round(u14 * rate));
+        extractedData.customerPrice = String(Math.round(u14 * rate * 1.1));
       }
     } else if (base.startsWith('ユーザー')) {
       // ユーザーファイル: U14 → customer-price のみ
