@@ -490,16 +490,16 @@
       <!-- 金額 -->
       <div class="form-section-title">金額</div>
       <div class="form-row">
-        <label for="netPrice">アズマ → かがし屋様 NET（税抜）</label>
+        <label for="net-price">アズマ → かがし屋様 NET（税抜）</label>
         <div class="amount-wrap">
-          <input type="text" id="netPrice" placeholder="0" inputmode="numeric" />
+          <input type="text" id="net-price" placeholder="0" inputmode="numeric" />
           <span class="unit">円（税抜）</span>
         </div>
       </div>
       <div class="form-row">
-        <label for="customerPrice">かがし屋様 → お客様見積（税込）</label>
+        <label for="customer-price">かがし屋様 → お客様見積（税込）</label>
         <div class="amount-wrap">
-          <input type="text" id="customerPrice" placeholder="0" inputmode="numeric" />
+          <input type="text" id="customer-price" placeholder="0" inputmode="numeric" />
           <span class="unit">円（税込）</span>
         </div>
       </div>
@@ -599,8 +599,8 @@
      メリット自動計算
   ────────────────────────────────────────── */
   function updateMerit() {
-    const net      = parseNum('netPrice');
-    const customer = parseNum('customerPrice');
+    const net      = parseNum('net-price');
+    const customer = parseNum('customer-price');
     const merit    = customer - Math.round(net * 1.1);
     const el       = $('merit-display');
     if (net === 0 && customer === 0) {
@@ -611,8 +611,8 @@
     el.textContent = `${fmt(merit)} 円（税込）`;
     el.className   = merit >= 0 ? 'calc-result' : 'calc-result negative';
   }
-  $('netPrice').addEventListener('input', updateMerit);
-  $('customerPrice').addEventListener('input', updateMerit);
+  $('net-price').addEventListener('input', updateMerit);
+  $('customer-price').addEventListener('input', updateMerit);
 
   /* ══════════════════════════════════════════
      プランC：ドロップゾーン ＋ テキスト解析
@@ -895,10 +895,10 @@
   $('btn-apply-extract').addEventListener('click', () => {
     if (extractedData.customerName)  $('customer-name').value  = extractedData.customerName;
     if (extractedData.workContent)   $('work-content').value   = extractedData.workContent;
-    if (extractedData.netPrice)      $('netPrice').value      = extractedData.netPrice;
-    if (extractedData.customerPrice) $('customerPrice').value = extractedData.customerPrice;
+    if (extractedData.netPrice)      $('net-price').value      = extractedData.netPrice;
+    if (extractedData.customerPrice) $('customer-price').value = extractedData.customerPrice;
     if (extractedData.address)       $('address').value        = extractedData.address;
-    $('netPrice').dispatchEvent(new Event('input'));
+    $('net-price').dispatchEvent(new Event('input'));
     $('extract-banner').style.display = 'none';
     showToast('フォームに適用しました ✅', '#27ae60');
   });
@@ -920,8 +920,8 @@
     const customerName = $('customer-name').value.trim() || '（顧客名未入力）';
     const workContent  = $('work-content').value.trim()  || '（工事内容未入力）';
     const address      = $('address').value.trim()       || '（住所未入力）';
-    const net          = parseNum('netPrice');
-    const customer     = parseNum('customerPrice');
+    const net          = parseNum('net-price');
+    const customer     = parseNum('customer-price');
     const merit        = customer - Math.round(net * 1.1);
     const tel          = $('sender-tel').value.trim()    || 'TEL: ';
     const email        = $('sender-email').value.trim()  || 'E-mail: ';
@@ -981,7 +981,7 @@ E-mail: ${email}`;
   $('btn-reset').addEventListener('click', () => {
     document.querySelectorAll('#recipient-group input[type="checkbox"]')
       .forEach(el => { el.checked = false; });
-    ['customer-name','work-content','address','netPrice','customerPrice']
+    ['customer-name','work-content','address','net-price','customer-price']
       .forEach(id => { $(id).value = ''; });
     $('merit-display').textContent = '—';
     $('merit-display').className = 'calc-result';
@@ -1017,8 +1017,8 @@ E-mail: ${email}`;
       customerName:  $('customer-name').value.trim(),
       workContent:   $('work-content').value.trim(),
       address:       $('address').value.trim(),
-      netPrice:      $('netPrice').value.trim(),
-      customerPrice: $('customerPrice').value.trim(),
+      netPrice:      $('net-price').value.trim(),
+      customerPrice: $('customer-price').value.trim(),
     };
 
     if (!entry.customerName && !entry.workContent && !entry.netPrice) {
@@ -1045,8 +1045,8 @@ E-mail: ${email}`;
     $('customer-name').value  = entry.customerName  || '';
     $('work-content').value   = entry.workContent   || '';
     $('address').value        = entry.address       || '';
-    $('netPrice').value      = entry.netPrice      || '';
-    $('customerPrice').value = entry.customerPrice || '';
+    $('net-price').value      = entry.netPrice      || '';
+    $('customer-price').value = entry.customerPrice || '';
     updateMerit();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     showToast('履歴を読み込みました', '#2c5f8a');
