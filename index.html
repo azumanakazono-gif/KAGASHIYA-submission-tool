@@ -699,9 +699,23 @@
     const custM = base.match(/_(.+?様邸)/);
     if (custM && !extractedData.customerName) {
       extractedData.customerName = custM[1].replace(/\d+/g, '').trim();
-      // 工事内容: "様邸" 以降（エアコン台数が後から上書き可能）
+      // 工事内容: "様邸" 以降
       const tail = base.slice(base.indexOf(custM[1]) + custM[1].length).trim();
       if (tail && !extractedData.workContent) extractedData.workContent = tail;
+    }
+
+    // 「様邸」がない場合: 商材キーワード直前の文字列を顧客名として抽出
+    if (!extractedData.customerName) {
+      const stripped = base.replace(/^[\d_]+/, '').replace(/\.xlsx?$/i, '').trim();
+      const productKeys = ['太陽光発電','エアコン','蓄電池','エコキュート','LED','照明'];
+      for (const key of productKeys) {
+        const idx = stripped.indexOf(key);
+        if (idx > 0) {
+          extractedData.customerName = stripped.slice(0, idx).replace(/\d+/g, '').trim();
+          if (!extractedData.workContent) extractedData.workContent = stripped.slice(idx).trim();
+          break;
+        }
+      }
     }
   }
 
@@ -747,6 +761,11 @@
         });
       });
     });
+
+    // LED/照明 商材なら工事内容を自動セット
+    if ((base.includes('LED') || base.includes('照明')) && !extractedData.workContent) {
+      extractedData.workContent = '照明機器工事';
+    }
 
     if (base.startsWith('NET')) {
       // NET ファイル: U14 → net-price、掛け率計算 → customer-price
