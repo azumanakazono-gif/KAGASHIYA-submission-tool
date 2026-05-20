@@ -811,9 +811,15 @@
       }
     }
 
+    // ── V19 から設置先住所を抽出 ──────────────────
+    const v19Raw = targetSheet ? targetSheet['V19'] : null;
+    const v19Val = v19Raw ? String(v19Raw.w ?? v19Raw.v ?? '').trim() : '';
+    if (v19Val) extractedData.address = v19Val;
+
     // ── 抽出結果を直接 DOM に反映 ──────────────────
     if (extractedData.customerName) document.getElementById('customer-name').value = extractedData.customerName;
     if (extractedData.workContent)  document.getElementById('work-content').value  = extractedData.workContent;
+    if (extractedData.address)      document.getElementById('address').value        = extractedData.address;
     document.getElementById('net-price').value      = extractedData.netPrice      || '';
     document.getElementById('customer-price').value = extractedData.customerPrice || '';
     document.getElementById('net-price').dispatchEvent(new Event('input'));
