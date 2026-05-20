@@ -8,7 +8,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      font-family: "Yu Gothic", "YuGothic", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", sans-serif;
       background: #f4f6f9;
       color: #2c3e50;
       min-height: 100vh;
@@ -1013,7 +1013,7 @@ E-mail: ${email}`;
     // HTML版（色付きリッチテキスト）
     const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
     const red  = s => `<strong style="color:#e74c3c;">${s}</strong>`;
-    const blue = s => `<span style="color:#004080;">${s}</span>`;
+    const blue = s => `<span style="color:#0000FF;">${s}</span>`;
     const black = s => `<span style="color:#000000;">${s}</span>`;
     const htmlBody = esc(body)
       .replace(esc(`${fmt(net)}円（税抜）`),    `${red(fmt(net)+'円')}${blue('（税抜）')}`)
