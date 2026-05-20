@@ -1006,7 +1006,20 @@ E-mail: ${email}`;
 
     const preview = $('preview-area');
     preview.classList.remove('placeholder');
-    preview.textContent = body;
+
+    // プレーンテキスト（コピー用）
+    preview.dataset.plain = body;
+
+    // HTML版（色付きリッチテキスト）
+    const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    const red  = s => `<strong style="color:#e74c3c;">${s}</strong>`;
+    const blue = s => `<span style="color:#3498db;">${s}</span>`;
+    const htmlBody = esc(body)
+      .replace(esc(`${fmt(net)}円（税抜）`),    `${red(fmt(net)+'円')}${blue('（税抜）')}`)
+      .replace(esc(`${fmt(customer)}円（税込）`), `${red(fmt(customer)+'円')}${blue('（税込）')}`)
+      .replace(esc(`${fmt(merit)}円（税込）`),   `${red(fmt(merit)+'円')}${blue('（税込）')}`);
+
+    preview.innerHTML = htmlBody;
   }
 
   /* ──────────────────────────────────────────
@@ -1015,8 +1028,17 @@ E-mail: ${email}`;
   $('btn-copy').addEventListener('click', async () => {
     const preview = $('preview-area');
     if (preview.classList.contains('placeholder')) return;
+    const plainText = preview.dataset.plain || preview.innerText;
+    const htmlText  = preview.innerHTML;
     try {
-      await navigator.clipboard.writeText(preview.textContent);
+      if (window.ClipboardItem) {
+        await navigator.clipboard.write([new ClipboardItem({
+          'text/plain': new Blob([plainText], { type: 'text/plain' }),
+          'text/html':  new Blob([htmlText],  { type: 'text/html'  }),
+        })]);
+      } else {
+        await navigator.clipboard.writeText(plainText);
+      }
       const btn = $('btn-copy');
       btn.textContent = '✅ コピーしました';
       btn.classList.add('copied');
@@ -1038,6 +1060,7 @@ E-mail: ${email}`;
     dropZone.querySelector('p').innerHTML = DZ_DEFAULT_HTML;
     const preview = $('preview-area');
     preview.classList.add('placeholder');
+    preview.removeAttribute('data-plain');
     preview.textContent = '← 左のフォームを入力して「メール文面を生成する」を押してください';
   });
 
