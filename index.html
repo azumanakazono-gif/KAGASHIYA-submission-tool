@@ -826,7 +826,7 @@
       const matchedRate = RATE_MAP.find(m => base.includes(m.key));
       const usedRate    = matchedRate ? matchedRate.rate : 1.1;
       const formulaEl   = document.getElementById('merit-formula');
-      if (formulaEl) formulaEl.textContent = `お客様税込 − NET税抜 × ${usedRate}`;
+      if (formulaEl) formulaEl.textContent = `お客様税込 − NET税抜 × 消費税率 × ${usedRate}`;
     }
     document.getElementById('net-price').value      = extractedData.netPrice      || '';
     document.getElementById('customer-price').value = extractedData.customerPrice || '';
