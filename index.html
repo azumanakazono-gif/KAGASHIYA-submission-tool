@@ -1013,11 +1013,12 @@ E-mail: ${email}`;
     // HTML版（色付きリッチテキスト）
     const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
     const red  = s => `<strong style="color:#e74c3c;">${s}</strong>`;
-    const blue = s => `<span style="color:#3498db;">${s}</span>`;
+    const blue = s => `<span style="color:#004080;">${s}</span>`;
+    const black = s => `<span style="color:#000000;">${s}</span>`;
     const htmlBody = esc(body)
       .replace(esc(`${fmt(net)}円（税抜）`),    `${red(fmt(net)+'円')}${blue('（税抜）')}`)
-      .replace(esc(`${fmt(customer)}円（税込）`), `${red(fmt(customer)+'円')}${blue('（税込）')}`)
-      .replace(esc(`${fmt(merit)}円（税込）`),   `${red(fmt(merit)+'円')}${blue('（税込）')}`);
+      .replace(esc(`${fmt(customer)}円（税込）`), `${red(fmt(customer)+'円')}${black('（税込）')}`)
+      .replace(esc(`${fmt(merit)}円（税込）`),   `${red(fmt(merit)+'円')}${black('（税込）')}`);
 
     preview.innerHTML = htmlBody;
   }
