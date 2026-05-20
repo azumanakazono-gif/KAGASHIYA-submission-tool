@@ -505,7 +505,7 @@
       <div class="form-row">
         <label>かがし屋 金銭的メリット（自動計算）</label>
         <div class="calc-result" id="merit-display">—</div>
-        <span class="hint" id="merit-formula">お客様税込 − NET税抜 × 掛け率 × 1.1</span>
+        <span class="hint" id="merit-formula">お客様税込 − NET税抜 × 消費税 × [商材ごとの掛け率]</span>
       </div>
 
       <!-- ════ プランA：差出人（固定・自動入力済み） ════ -->
@@ -999,7 +999,7 @@ E-mail: ${email}`;
       .forEach(id => { $(id).value = ''; });
     $('merit-display').textContent = '—';
     $('merit-display').className = 'calc-result';
-    $('merit-formula').textContent = 'お客様税込 − NET税抜 × 掛け率 × 1.1';
+    $('merit-formula').textContent = 'お客様税込 − NET税抜 × 消費税 × [商材ごとの掛け率]';
     $('extract-banner').style.display = 'none';
     dropZone.querySelector('p').innerHTML = DZ_DEFAULT_HTML;
     const preview = $('preview-area');
