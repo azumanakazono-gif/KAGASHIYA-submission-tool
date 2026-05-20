@@ -733,8 +733,22 @@
 
     const base = fileName.replace(/\.xlsx?$/i, '').trim();
 
+    // 全シートのセルをフラット化（エアコン台数検索・フォールバック共用）
+    const cells = [];
+    wb.SheetNames.forEach(sName => {
+      const ws = wb.Sheets[sName];
+      if (!ws) return;
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+      rows.forEach((row, r) => {
+        if (!Array.isArray(row)) return;
+        row.forEach((val, c) => {
+          if (val !== null && val !== undefined && val !== '') cells.push({ val, r, c, sheet: sName });
+        });
+      });
+    });
+
     if (base.startsWith('NET')) {
-      // NET ファイル: U14 → netPrice、掛け率計算 → customerPrice
+      // NET ファイル: U14 → net-price、掛け率計算 → customer-price
       if (u14 !== null) {
         extractedData.netPrice = String(u14);
         const match = RATE_MAP.find(m => base.includes(m.key));
@@ -742,25 +756,12 @@
         extractedData.customerPrice = String(Math.round(u14 * rate));
       }
     } else if (base.startsWith('ユーザー')) {
-      // ユーザーファイル: U14 → customerPrice のみ
+      // ユーザーファイル: U14 → customer-price のみ
       if (u14 !== null) {
         extractedData.customerPrice = String(u14);
       }
     } else {
-      // 判定不能: 従来のラベル隣接セル方式にフォールバック
-      const cells = [];
-      wb.SheetNames.forEach(sName => {
-        const ws = wb.Sheets[sName];
-        if (!ws) return;
-        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-        rows.forEach((row, r) => {
-          if (!Array.isArray(row)) return;
-          row.forEach((val, c) => {
-            if (val !== null && val !== undefined && val !== '') cells.push({ val, r, c, sheet: sName });
-          });
-        });
-      });
-
+      // 判定不能: ラベル隣接セル方式にフォールバック
       const NET_KEYS  = ['NET', 'Net', 'net', 'NET価格', 'NET金額', '税抜', '税抜合計', '仕入', 'アズマ'];
       const CUST_KEYS = ['税込', '税込合計', 'お客様', 'お客様見積', '見積金額', '合計金額', '請求金額'];
 
@@ -789,30 +790,19 @@
       }
     }
 
-    // ── エアコン台数を検索 ───────────────────────────
-    // パターン①: "エアコン2台" が1つのセルに入っている
-    // パターン②: "エアコン" セルの右列に数字、さらに右に"台"
+    // ── エアコン台数を検索 ──────────────────────────
     for (const cell of cells) {
       const str = String(cell.val);
-
       const inlineM = str.match(/エアコン[^\d]*(\d+)\s*台/);
-      if (inlineM) {
-        extractedData.workContent = `エアコン${inlineM[1]}台`;
-        break;
-      }
-
+      if (inlineM) { extractedData.workContent = `エアコン${inlineM[1]}台`; break; }
       if (str.includes('エアコン') && !extractedData.workContent) {
-        // 同じ行の右方向を探す
         const rowCells = cells
           .filter(nb => nb.sheet === cell.sheet && nb.r === cell.r && nb.c > cell.c && nb.c <= cell.c + 5)
           .sort((a, b) => a.c - b.c);
-
         for (let i = 0; i < rowCells.length; i++) {
           const nbStr = String(rowCells[i].val).trim();
-          // "2台" 形式
           const qtyM = nbStr.match(/^(\d+)\s*台$/);
           if (qtyM) { extractedData.workContent = `エアコン${qtyM[1]}台`; break; }
-          // 純数字のあとに単位セル"台"が続く
           if (/^\d+$/.test(nbStr) && rowCells[i + 1] && String(rowCells[i + 1].val).trim() === '台') {
             extractedData.workContent = `エアコン${nbStr}台`; break;
           }
@@ -820,6 +810,13 @@
         if (extractedData.workContent) break;
       }
     }
+
+    // ── 抽出結果を直接 DOM に反映 ──────────────────
+    if (extractedData.customerName) document.getElementById('customer-name').value = extractedData.customerName;
+    if (extractedData.workContent)  document.getElementById('work-content').value  = extractedData.workContent;
+    document.getElementById('net-price').value      = extractedData.netPrice      || '';
+    document.getElementById('customer-price').value = extractedData.customerPrice || '';
+    updateMerit();
 
     showExtractBanner(fileName);
   }
