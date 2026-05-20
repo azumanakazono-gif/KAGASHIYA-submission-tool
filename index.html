@@ -450,8 +450,7 @@
       <div id="drop-zone" role="button" tabindex="0"
            aria-label="見積書ファイルをドロップして自動解析">
         <div class="dz-icon">📄</div>
-        <p><strong>NET見積をドロップしてください</strong><br>
-           クリックしてファイルを選択することもできます（Excel 対応）</p>
+        <p><span style="color:#e74c3c;font-weight:bold;">NET見積をドロップ</span>してください<br>クリックしてファイルを選択することもできます（Excel 対応）</p>
       </div>
       <input type="file" id="file-input" accept=".pdf,.xlsx,.xls,.docx,.txt,.csv" />
 
@@ -619,6 +618,7 @@
   ══════════════════════════════════════════ */
   const dropZone  = $('drop-zone');
   const fileInput = $('file-input');
+  const DZ_DEFAULT_HTML = '<span style="color:#e74c3c;font-weight:bold;">NET見積をドロップ</span>してください<br>クリックしてファイルを選択することもできます（Excel 対応）';
 
   // クリック
   dropZone.addEventListener('click', () => fileInput.click());
@@ -650,8 +650,7 @@
 
     reader.onerror = () => {
       showToast('ファイルの読み込みに失敗しました', '#c0392b');
-      dropZone.querySelector('p').innerHTML =
-        '<strong>見積書をドロップ</strong>またはクリックして選択';
+      dropZone.querySelector('p').innerHTML = DZ_DEFAULT_HTML;
     };
 
     if (isXlsx) {
@@ -1001,8 +1000,7 @@ E-mail: ${email}`;
     $('merit-display').textContent = '—';
     $('merit-display').className = 'calc-result';
     $('extract-banner').style.display = 'none';
-    dropZone.querySelector('p').innerHTML =
-      '<strong>見積書をドロップ</strong>またはクリックして選択<br>テキスト抽出で金額を自動入力（PDF / Excel 対応予定）';
+    dropZone.querySelector('p').innerHTML = DZ_DEFAULT_HTML;
     const preview = $('preview-area');
     preview.classList.add('placeholder');
     preview.textContent = '← 左のフォームを入力して「メール文面を生成する」を押してください';
