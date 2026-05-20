@@ -699,7 +699,7 @@
     // 顧客名: "_" 直後から "様邸" まで
     const custM = base.match(/_(.+?様邸)/);
     if (custM && !extractedData.customerName) {
-      extractedData.customerName = custM[1].replace(/^\d+/, '');
+      extractedData.customerName = custM[1].replace(/^\d+/, '').trim();
       // 工事内容: "様邸" 以降（エアコン台数が後から上書き可能）
       const tail = base.slice(base.indexOf(custM[1]) + custM[1].length).trim();
       if (tail && !extractedData.workContent) extractedData.workContent = tail;
@@ -887,11 +887,7 @@
       `📎 <strong>${escHtml(fileName)}</strong>（解析済み）`;
 
     const lines = [];
-    if (extractedData.customerName) {
-      const dispName = extractedData.customerName.replace(/^\d+/, '');
-      extractedData.customerName = dispName;
-      lines.push(`顧客名: <b>${escHtml(dispName)}</b>`);
-    }
+    if (extractedData.customerName)  lines.push(`顧客名: <b>${escHtml(extractedData.customerName)}</b>`);
     if (extractedData.workContent)   lines.push(`工事内容: <b>${escHtml(extractedData.workContent)}</b>`);
     if (extractedData.netPrice)      lines.push(`NET（税抜）: <b>${fmt(+extractedData.netPrice)}</b> 円`);
     if (extractedData.customerPrice) lines.push(`お客様見積（税込）: <b>${fmt(+extractedData.customerPrice)}</b> 円`);
