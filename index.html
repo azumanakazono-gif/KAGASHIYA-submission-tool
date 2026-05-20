@@ -816,6 +816,8 @@
     if (extractedData.workContent)  document.getElementById('work-content').value  = extractedData.workContent;
     document.getElementById('net-price').value      = extractedData.netPrice      || '';
     document.getElementById('customer-price').value = extractedData.customerPrice || '';
+    document.getElementById('net-price').dispatchEvent(new Event('input'));
+    document.getElementById('customer-price').dispatchEvent(new Event('input'));
     updateMerit();
 
     showExtractBanner(fileName);
