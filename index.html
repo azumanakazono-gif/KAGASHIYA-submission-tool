@@ -720,6 +720,7 @@
 
   function analyzeExcel(wb, fileName) {
     extractedData = {};
+    document.getElementById('address').value = '';
     parseFileName(fileName);
 
     // ── 最初のシートの U14（row=13, col=20）をピンポイント取得 ──
