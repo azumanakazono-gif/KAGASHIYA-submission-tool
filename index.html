@@ -887,7 +887,11 @@
       `📎 <strong>${escHtml(fileName)}</strong>（解析済み）`;
 
     const lines = [];
-    if (extractedData.customerName)  lines.push(`顧客名: <b>${escHtml(extractedData.customerName)}</b>`);
+    if (extractedData.customerName) {
+      const dispName = extractedData.customerName.replace(/^\d+/, '');
+      extractedData.customerName = dispName;
+      lines.push(`顧客名: <b>${escHtml(dispName)}</b>`);
+    }
     if (extractedData.workContent)   lines.push(`工事内容: <b>${escHtml(extractedData.workContent)}</b>`);
     if (extractedData.netPrice)      lines.push(`NET（税抜）: <b>${fmt(+extractedData.netPrice)}</b> 円`);
     if (extractedData.customerPrice) lines.push(`お客様見積（税込）: <b>${fmt(+extractedData.customerPrice)}</b> 円`);
