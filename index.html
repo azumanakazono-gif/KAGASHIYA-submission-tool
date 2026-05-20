@@ -731,7 +731,7 @@
     const u14Val = parseInt(u14Str, 10);
     const u14 = (!isNaN(u14Val) && u14Val >= 1000 && u14Val <= 999_999_999) ? u14Val : null;
 
-    const base = fileName.replace(/\.xlsx?$/i, '');
+    const base = fileName.replace(/\.xlsx?$/i, '').trim();
 
     if (base.startsWith('NET')) {
       // NET ファイル: U14 → netPrice、掛け率計算 → customerPrice
