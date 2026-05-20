@@ -709,60 +709,80 @@
   /* ──────────────────────────────────────────
      Excel 解析: SheetJS を使いセル単位で処理
   ────────────────────────────────────────── */
+  // 商材キーワードと掛け率（ファイル名から判定）
+  const RATE_MAP = [
+    { key: '太陽光発電', rate: 1.1 },
+    { key: 'エアコン',   rate: 1.1 },
+    { key: '蓄電池',     rate: 1.2 },
+    { key: 'LED',        rate: 1.2 },
+    { key: 'エコキュート', rate: 1.3 },
+  ];
+
   function analyzeExcel(wb, fileName) {
     extractedData = {};
     parseFileName(fileName);
 
-    // 全シートのセルをフラット化: {val, r, c, sheet}
-    const cells = [];
-    wb.SheetNames.forEach(sName => {
-      const ws = wb.Sheets[sName];
-      if (!ws) return;
-      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-      rows.forEach((row, r) => {
-        if (!Array.isArray(row)) return;
-        row.forEach((val, c) => {
-          if (val !== null && val !== undefined && val !== '') {
-            cells.push({ val, r, c, sheet: sName });
-          }
+    // ── 「表紙」シートの U14（row=13, col=20）をピンポイント取得 ──
+    const targetSheet = wb.Sheets['表紙'];
+    const u14Raw = targetSheet ? targetSheet['U14'] : null;
+    const u14Val = u14Raw ? (typeof u14Raw.v === 'number' ? Math.round(u14Raw.v) : parseInt(String(u14Raw.v).replace(/[^\d]/g, ''), 10)) : NaN;
+    const u14 = (!isNaN(u14Val) && u14Val >= 1000 && u14Val <= 999_999_999) ? u14Val : null;
+
+    const base = fileName.replace(/\.xlsx?$/i, '');
+
+    if (base.startsWith('NET')) {
+      // NET ファイル: U14 → netPrice、掛け率計算 → customerPrice
+      if (u14 !== null) {
+        extractedData.netPrice = String(u14);
+        const match = RATE_MAP.find(m => base.includes(m.key));
+        const rate  = match ? match.rate : 1.1;
+        extractedData.customerPrice = String(Math.round(u14 * rate));
+      }
+    } else if (base.startsWith('ユーザー')) {
+      // ユーザーファイル: U14 → customerPrice のみ
+      if (u14 !== null) {
+        extractedData.customerPrice = String(u14);
+      }
+    } else {
+      // 判定不能: 従来のラベル隣接セル方式にフォールバック
+      const cells = [];
+      wb.SheetNames.forEach(sName => {
+        const ws = wb.Sheets[sName];
+        if (!ws) return;
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+        rows.forEach((row, r) => {
+          if (!Array.isArray(row)) return;
+          row.forEach((val, c) => {
+            if (val !== null && val !== undefined && val !== '') cells.push({ val, r, c, sheet: sName });
+          });
         });
       });
-    });
 
-    // ── ラベル → 隣接セル方式で金額を抽出 ──────────
-    const NET_KEYS  = ['NET', 'Net', 'net', 'NET価格', 'NET金額', '税抜', '税抜金額',
-                       '税抜合計', '仕入', '仕入金額', 'アズマ', 'かがし屋NET'];
-    const CUST_KEYS = ['税込', '税込合計', '税込金額', 'お客様', 'お客様見積',
-                       '見積金額', '合計金額', '請求金額', 'かがし屋→お客様'];
+      const NET_KEYS  = ['NET', 'Net', 'net', 'NET価格', 'NET金額', '税抜', '税抜合計', '仕入', 'アズマ'];
+      const CUST_KEYS = ['税込', '税込合計', 'お客様', 'お客様見積', '見積金額', '合計金額', '請求金額'];
 
-    for (const cell of cells) {
-      const str    = String(cell.val).trim();
-      const isNet  = NET_KEYS.some(k => str.includes(k));
-      const isCust = CUST_KEYS.some(k => str.includes(k));
-      if (!isNet && !isCust) continue;
+      for (const cell of cells) {
+        const str = String(cell.val).trim();
+        const isNet  = NET_KEYS.some(k => str.includes(k));
+        const isCust = CUST_KEYS.some(k => str.includes(k));
+        if (!isNet && !isCust) continue;
 
-      // 右1〜3・真下を候補として探す
-      const neighbors = cells.filter(nb =>
-        nb.sheet === cell.sheet && (
-          (nb.r === cell.r && nb.c >= cell.c + 1 && nb.c <= cell.c + 3) ||
-          (nb.r === cell.r + 1 && nb.c === cell.c)
-        )
-      ).sort((a, b) => (a.r - b.r) || (a.c - b.c));
+        const neighbors = cells.filter(nb =>
+          nb.sheet === cell.sheet && (
+            (nb.r === cell.r && nb.c >= cell.c + 1 && nb.c <= cell.c + 3) ||
+            (nb.r === cell.r + 1 && nb.c === cell.c)
+          )
+        ).sort((a, b) => (a.r - b.r) || (a.c - b.c));
 
-      for (const nb of neighbors) {
-        // Date オブジェクト（Excel日付セル）は金額として扱わない
-        if (nb.val instanceof Date) continue;
-
-        // 数値は Math.round で浮動小数点誤差を吸収、文字列は数字以外を除去して parseInt
-        const raw = typeof nb.val === 'number'
-          ? Math.round(nb.val)
-          : parseInt(String(nb.val).replace(/[^\d]/g, ''), 10);
-
-        // 有効範囲: 1,000円 以上 999,999,999円 以下（sentinel 値 9999999999 等を排除）
-        if (isNaN(raw) || raw < 1000 || raw > 999_999_999) continue;
-
-        if (isNet  && !extractedData.netPrice)      { extractedData.netPrice      = String(raw); break; }
-        if (isCust && !extractedData.customerPrice) { extractedData.customerPrice = String(raw); break; }
+        for (const nb of neighbors) {
+          if (nb.val instanceof Date) continue;
+          const raw = typeof nb.val === 'number'
+            ? Math.round(nb.val)
+            : parseInt(String(nb.val).replace(/[^\d]/g, ''), 10);
+          if (isNaN(raw) || raw < 1000 || raw > 999_999_999) continue;
+          if (isNet  && !extractedData.netPrice)      { extractedData.netPrice      = String(raw); break; }
+          if (isCust && !extractedData.customerPrice) { extractedData.customerPrice = String(raw); break; }
+        }
       }
     }
 
